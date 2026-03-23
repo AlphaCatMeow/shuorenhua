@@ -6,10 +6,10 @@
 
 ```bash
 # Cursor
-cp SKILL.md .cursor/rules/stop-slop.md
+cp SKILL.md .cursor/rules/shuorenhua.md
 
 # Windsurf
-cp SKILL.md .windsurf/rules/stop-slop.md
+cp SKILL.md .windsurf/rules/shuorenhua.md
 ```
 
 如果需要参考文件（禁用短语表等），在同目录下创建 `references/` 并复制进去。

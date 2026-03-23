@@ -6,16 +6,16 @@
 
 ```bash
 # 在项目根目录下执行
-mkdir -p .claude/skills/stop-slop-zh
-cp SKILL.md .claude/skills/stop-slop-zh/
-cp -r references/ .claude/skills/stop-slop-zh/
+mkdir -p .claude/skills/shuorenhua
+cp SKILL.md .claude/skills/shuorenhua/
+cp -r references/ .claude/skills/shuorenhua/
 ```
 
 然后在项目的 `CLAUDE.md` 中添加引用：
 
 ```markdown
 ## 写作风格
-对外文本遵循 `.claude/skills/stop-slop-zh/SKILL.md` 的反模式规则。
+对外文本遵循 `.claude/skills/shuorenhua/SKILL.md` 的反模式规则。
 ```
 
 ## 方式 2：全局
@@ -23,14 +23,14 @@ cp -r references/ .claude/skills/stop-slop-zh/
 将 skill 复制到全局配置：
 
 ```bash
-mkdir -p ~/.claude/skills/stop-slop-zh
-cp SKILL.md ~/.claude/skills/stop-slop-zh/
-cp -r references/ ~/.claude/skills/stop-slop-zh/
+mkdir -p ~/.claude/skills/shuorenhua
+cp SKILL.md ~/.claude/skills/shuorenhua/
+cp -r references/ ~/.claude/skills/shuorenhua/
 ```
 
 ## 使用
 
 安装后 Claude Code 会自动识别 skill。你可以：
 
-- 在对话中说"用 stop-slop 改写这段文本"
+- 在对话中说"用说人话规则改写这段文本"
 - 或者在 CLAUDE.md 中设置默认启用

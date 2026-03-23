@@ -6,15 +6,15 @@
 
 ```markdown
 ## 写作风格
-对外文本遵循 `stop-slop-zh/SKILL.md` 的反模式规则。
+对外文本遵循 `shuorenhua/SKILL.md` 的反模式规则。
 ```
 
 然后将 skill 文件放到项目中：
 
 ```bash
-mkdir -p stop-slop-zh
-cp SKILL.md stop-slop-zh/
-cp -r references/ stop-slop-zh/
+mkdir -p shuorenhua
+cp SKILL.md shuorenhua/
+cp -r references/ shuorenhua/
 ```
 
 Codex 会自动读取 `AGENTS.md` 并在需要时引用规则文件。
