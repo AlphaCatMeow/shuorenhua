@@ -43,5 +43,5 @@ cat SKILL.md >> ~/.codex/instructions.md
 ## 注意
 
 - 推荐方式 1，让规则跟随项目版本控制
-- 如果 token 预算紧张，只放 `SKILL.md` 即可（核心规则自包含）
+- 如果 token 预算紧张，可以只放 `SKILL.md`；但 `references/` 会补足大量中文词表，想要更稳的过滤效果建议一起放
 - 需要深度改写时再手动引用 `references/` 下的禁用短语表

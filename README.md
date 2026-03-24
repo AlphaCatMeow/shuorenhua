@@ -132,7 +132,7 @@ git commit -m "feat: add shuorenhua skill"
 git push  # VM 上 git pull 后即生效
 ```
 
-OpenClaw 的 skill 加载是自动的——只要 `SOUL.md` 里引用了路径，运行时会把整个 skill 目录读进上下文。如果 token 预算紧张，只放 `SKILL.md` 就够（核心规则自包含），需要深度改写再引用 `references/` 下的词表。
+OpenClaw 的 skill 加载是自动的——只要 `SOUL.md` 里引用了路径，运行时会把整个 skill 目录读进上下文。如果 token 预算紧张，只放 `SKILL.md` 也能覆盖高频基础套路；但 `references/` 会显著提高中文词表覆盖率，建议一并放入。
 
 详见 [install/openclaw.md](install/openclaw.md)。
 
