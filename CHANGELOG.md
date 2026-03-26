@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2] - 2026-03-26 — 发布口径对齐 + 文档修正
+
+### Changed
+- `SKILL.md` frontmatter：`name` 从 `stop-slop-zh` 改为 `shuorenhua`，描述补"中英文"，H1 改为"说人话"
+- `install/` 文档全面修正触发模型描述：删除"Claude Code 自动识别"和"OpenClaw 全量加载"等误导性说法，明确各平台的触发入口；统一补充验证示例
+- `evals/run-eval.md`：补全缺失的 reference 文件列表（`phrases-en`、`operation-manual`、`scene-guardrails`、`boundary-cases`）；评测流程改为先判场景 / Tier / 档位
+
 ## [1.4.1] - 2026-03-26 — Skill workflow 修复 + benchmark 边界加固
 
 ### Added
@@ -19,7 +26,6 @@
 - 为学术或实验语体中的正常英文被动语态增加误杀防护
 - 为带具体参数、操作和结果的真人工程师 debug 对话增加误杀防护
 - 静态 benchmark 风险点补强：覆盖 SF-08、SF-16、SNF-05、SNF-09、SNF-11
-- 发布口径补齐：`SKILL.md` 名称统一为 `shuorenhua`，install 文档修正触发模型描述，`evals/run-eval.md` 补全 reference 文件列表
 
 ## [1.4.0] - 2026-03-25 — GPT-5.x 新词入库 + Codex review 修复
 
