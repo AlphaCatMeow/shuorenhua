@@ -54,3 +54,11 @@
 - [x] 把 intake 方案落成可直接复用的 automation prompt 模板
 - [x] 新增 `.gitignore` 忽略 `.DS_Store`
 - [x] 复核 diff 和仓库状态
+
+## v1.4.3 release
+
+- [ ] 把 `Unreleased` 和 `v1.4.4` 口径收回到 `v1.4.3`
+- [ ] 重命名评测结果文件并同步 README / CHANGELOG 引用
+- [ ] 提交 release 对齐变更
+- [ ] fast-forward `main` 到发布提交并推送
+- [ ] 创建并推送 `v1.4.3` tag

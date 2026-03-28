@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.4.3] - 2026-03-28 — Pattern-first intake hardening + eval sync
 
 ### Added
 - 新增“模式变体归并”规则：遇到 `扒开 / 拽出来` 这类未逐词收录的说法，先并入现有问题族，不把词表当成穷举清单
