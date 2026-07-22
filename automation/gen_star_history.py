@@ -21,10 +21,10 @@ EVENTS = [  # 曲线上的发版标注，日期以 GitHub releases 为准
     (date(2026, 7, 15), "v2.0 · Plugin 一键安装"),
 ]
 
-PANEL, BORDER = "#F7F8F5", "#D7DCE2"
-INK, MUTED = "#101318", "#929AA5"
-GRID, BASELINE = "#E5E8EC", "#AEB5BF"
-ACCENT = "#246BFD"
+PANEL, BORDER = "#FBF9F5", "#E6E1D6"
+INK, MUTED = "#14161B", "#76716A"
+GRID, BASELINE = "#E9E4DB", "#B9B2A5"
+ACCENT, AREA = "#C5402E", "#B9B2A5"
 
 X0, X1, Y0, PLOT_H = 88, 1150, 340, 210  # 绘图区
 SANS = "-apple-system, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif"
@@ -94,18 +94,17 @@ def main():
         ex, ey = xs(ev_date), ys(cum_v)
         events_svg.append(
             f'<line x1="{ex:.1f}" y1="{ey+6:.1f}" x2="{ex:.1f}" y2="{Y0}" stroke="{BASELINE}" stroke-width="1" stroke-dasharray="2 5"/>\n'
-            f'  <circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{INK}" stroke="{PANEL}" stroke-width="2"/>\n'
+            f'  <circle cx="{ex:.1f}" cy="{ey:.1f}" r="3.5" fill="{ACCENT}" stroke="{PANEL}" stroke-width="2"/>\n'
             f'  <text x="{ex-10:.1f}" y="{ey-15:.1f}" font-family="{SANS}" font-size="12" fill="{MUTED}" text-anchor="end">{label}</text>')
 
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="390" viewBox="0 0 1200 390" role="img" aria-label="说人话 star 增长曲线：开源 {span} 天，0 到 {total} stars，数据截至 {today}">
-  <rect x="1" y="1" width="1198" height="388" fill="{PANEL}" stroke="{BORDER}" stroke-width="1.5"/>
-  <rect x="1" y="1" width="1198" height="4" fill="{ACCENT}"/>
+  <rect x="1" y="1" width="1198" height="388" rx="16" fill="{PANEL}" stroke="{BORDER}" stroke-width="1.5"/>
 
-  <text x="40" y="37" font-family="{MONO}" font-size="11.5" letter-spacing="1" fill="{ACCENT}">STAR HISTORY / GITHUB</text>
-  <text x="40" y="73" font-family="{SANS}" font-size="25" font-weight="700" fill="{INK}">「说人话」star 增长</text>
-  <text x="40" y="98" font-family="{MONO}" font-size="12.5" fill="{MUTED}">开源 {span} 天 · 0 → {total} · 数据截至 {today}</text>
+  <text x="40" y="37" font-family="{MONO}" font-size="11.5" letter-spacing="1" fill="{ACCENT}">STAR 记录 / 每日更新</text>
+  <text x="40" y="73" font-family="{SANS}" font-size="25" font-weight="700" fill="{INK}">开源以来</text>
+  <text x="40" y="98" font-family="{MONO}" font-size="12.5" fill="{MUTED}">{span} 天 · 数据截至 {today}</text>
   <text x="1150" y="75" font-family="{MONO}" font-size="43" font-weight="700" fill="{ACCENT}" text-anchor="end">{total}</text>
-  <text x="1150" y="98" font-family="{MONO}" font-size="11.5" letter-spacing="1" fill="{MUTED}" text-anchor="end">STARGAZERS</text>
+  <text x="1150" y="98" font-family="{MONO}" font-size="11.5" letter-spacing="1" fill="{MUTED}" text-anchor="end">STARS</text>
   <line x1="40" y1="112" x2="1160" y2="112" stroke="{BORDER}" stroke-width="1"/>
 
   <g stroke="{GRID}" stroke-width="1">
@@ -119,13 +118,13 @@ def main():
     {''.join(xticks)}
   </g>
 
-  <path d="{area}" fill="{ACCENT}" fill-opacity="0.06"/>
-  <path d="{line}" fill="none" stroke="{ACCENT}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="{area}" fill="{AREA}" fill-opacity="0.10"/>
+  <path d="{line}" fill="none" stroke="{INK}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
 
   {''.join(events_svg)}
 
   <circle cx="{end_x:.1f}" cy="{end_y:.1f}" r="4.5" fill="{ACCENT}" stroke="{PANEL}" stroke-width="2"/>
-  <text x="{end_x-12:.1f}" y="{end_y-10:.1f}" font-family="{SANS}" font-size="14" font-weight="700" fill="{INK}" text-anchor="end">最新</text>
+  <text x="{end_x-12:.1f}" y="{end_y-10:.1f}" font-family="{SANS}" font-size="14" font-weight="700" fill="{ACCENT}" text-anchor="end">最新</text>
 </svg>
 '''
     out.write_text(svg, encoding="utf-8")
