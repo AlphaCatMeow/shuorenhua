@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Shanghai
-      GH_TOKEN: ${{ github.token }}  # 读本仓库 stargazers，自带 token 够用
+      GH_TOKEN: ${{ github.token }}  # 脚本走 GraphQL 读 stargazers，自带 token 放行（REST 端点会 403）
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
