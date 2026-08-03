@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.2.0] - 2026-08-03 — eval harness 脚本硬判
+
+### Added
+- 新增 `automation/eval/hard_metrics.py`：零依赖硬判脚本（纯 Python 标准库），输入改写前后文本，输出三项硬指标：
+  - 字数留存率：替掉人工 `wc -m` 步骤，只对 `public-writing / long / in-place` 用例判定，目标 ≥ 0.90、硬下限 0.85，低于硬下限按 run-eval.md 口径记硬约束失败；bounded 长文与 no-op（保留原文）用例不适用留存率判据。
+  - 破折号密度：每段 `——` 计数 + 输出首句是否仍以 `——` 起手，命中 SF-43 破折号过密信号时报警。
+  - protected spans 粗核：数字、版本号、路径、反引号片段、代码标识符等在输出中是否逐字存在；缺失只报警不判死，留给 judge 复核。
+- `--run <dir>` 批量扫批次目录（自动区分 `codex/` / `claude/` 子目录并配对 `evals/benchmark-blind.md` 原文），输出 `hard-metrics.md` 报告和 `hard-metrics.json`；`--pair` / `--stdin` 支持单条对照，`--report-json` 供 judge 输入拼接。
+
+### Changed
+- `automation/eval/judge-prompt.md`：长文留存等硬指标改为「运行者提供 hard_metrics 报告数字」，judge 不再自己数，也不再估算；补充三项硬指标的口径说明（bounded / no-op 例外、破折号信号、粗核报警不判死）。
+- `automation/eval/README.md`：新增「硬判」一节（运行命令、口径、产物、单条用法），文件约定表登记硬判脚本；移除 v2.2.0 硬判脚本相关的未来时态表述。
+
+### Tested
+- `--run tasks/current/eval-runs/2026-07-23-v2.1.0-final-full-41da53f/`：10 个批次（codex/claude 各 5）全部解析，无缺输出，退出码 0；`--run tasks/current/eval-runs/2026-07-05-v1.9.2-targeted/` 旧口径（SF/SNF 编号）5 条回放成功，退出码 0。
+- 8 个长文用例（B-02 / B-19 / B-44 / B-68 × codex/claude）字数留存率与手工记录 `long-form-retention.txt` 逐条一致，零冲突：
+  - 实际改写（B-19 / B-68）：codex 322/339=95.0%、403/416=96.9%；claude 320/339=94.4%、413/416=99.3%。
+  - 保留原文（B-02 codex、B-44 两侧、B-02 claude）：按 no-op 口径不判留存率；其中正文附原文的按 100% 记（包装字如「处理结果：/保持原文：」不计入分子），claude B-02 只输出说明文字、靠判定链「力度=no-op」证据放行，并保留 80/231 供 judge 复核。
+- 第二视角评审 P1 项已全部修复并复测：整篇 blockquote 输出（`> ## B-xx` + `> 处理结果：`）解析成功；中文紧贴数字/单位（`耗时20ms`、`共20人`、`版本v1.8.0`）正确命中，版本号先剥避免幽灵片段；假 no-op（声明保留原文但正文未附原文、无判定链证据）标 `noop_unverified` 并按实际留存率判 fail；`--pair` / `--stdin` 自动剥标题与「处理结果：」前缀，`--scene` 支持长文判据。
+- 失败语义实测：路径不存在、无参调用、单条缺文件均退出码 2，不会静默通过。
+- `python3 automation/check_repo.py` 通过。
+
 ## [2.1.0] - 2026-07-23 — 清完变泛 / README 使用入口
 
 ### Added

@@ -250,6 +250,8 @@ Claude 首轮那 1 个 L1 不是规则缺口：判定链已经写明“不得补
 
 评测怎么跑：被测模型只看匿名乱序、不含预期的 [evals/benchmark-blind.md](evals/benchmark-blind.md)，judge 按映射表判分；每次实跑的评测集版本、模型和口径登记在 [evals/run-manifest.md](evals/run-manifest.md)。完整用例集见 [evals/benchmark.md](evals/benchmark.md)，整段场景样本（高拟真合成）见 [evals/real-samples.md](evals/real-samples.md)。
 
+v2.2.0 起，改写输出落盘后先用零依赖硬判脚本 `python3 automation/eval/hard_metrics.py --run <批次目录>/` 批量算出字数留存率、破折号密度和 protected spans 粗核（自动配对 `evals/benchmark-blind.md` 原文），judge 不再自己数长文留存，缺失报警仍由 judge 复核；使用口径见 [automation/eval/README.md](automation/eval/README.md)。
+
 ## 安装
 
 | 平台 | 文档 |
