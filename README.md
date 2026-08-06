@@ -79,7 +79,7 @@
 >
 > 这版不做 Voice Calibration；相关方向推迟到 v1.9 评估。
 
-release note 的读者要的是变更清单，不是发布宣言。版本号保住，姿态层拆掉，没做的事也写出来。完整样本见 [evals/real-samples.md](evals/real-samples.md) RS-16。
+release note 的读者要的是变更清单，不是发布宣言。上面这条改写保住了版本号，拆掉了发布宣言那层，还把「这版不做 Voice Calibration」这种没做的事也写了出来。完整样本见 [evals/real-samples.md](evals/real-samples.md) RS-16。
 
 ### 删掉渲染词，数字不能跟着丢
 
@@ -97,7 +97,7 @@ release note 的读者要的是变更清单，不是发布宣言。版本号保�
 
 > 这次优化把接口 p95 延迟从 480ms 降到 160ms。
 
-清完落在哪是有合同的：原文给了具体信息就必须落回去，不许变泛。这条对应评测集里的硬约束用例（[evals/benchmark.md](evals/benchmark.md) SF-46）。更多例子见 [references/examples.md](references/examples.md) 和 [evals/real-samples.md](evals/real-samples.md)。
+清完落在哪是有合同的：原文给了具体信息，改写后就得把它落回去，不能拿更泛的说法顶替。这条对应评测集里的硬约束用例（[evals/benchmark.md](evals/benchmark.md) SF-46）。更多例子见 [references/examples.md](references/examples.md) 和 [evals/real-samples.md](evals/real-samples.md)。
 
 ## 30 秒上手
 
@@ -313,6 +313,7 @@ Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin instal
 - [stop-slop](https://github.com/hardikpandya/stop-slop)：英文 AI slop 规则和评分框架
 - [humanizer](https://github.com/blader/humanizer)：英文 AI 模式分类
 - [avoid-ai-writing](https://github.com/conorbronsdon/avoid-ai-writing)：AI 写作问题分类和严重度参考
+- [speak-human-tw](https://github.com/Raymondhou0917/speak-human-tw)：繁体中文去 AI 味，覆盖电子报、社群贴文、销售页和客服信
 
 ## Star 增长
 
