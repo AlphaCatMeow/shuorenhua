@@ -201,7 +201,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 | `bounded`（长文默认） | 整句空话列成「建议删除（待确认）」清单，删多少你拍板 | `public-writing` 长文 |
 | `in-place` | 一句都不删，只句内降调 | 明确要求「完全原样」 |
 
-三档的取舍过程和模型实跑数据见 [#4](https://github.com/MrGeDiao/shuorenhua/issues/4) 和 [evals/results-v1.8.6.md](evals/results-v1.8.6.md)。
+三档的取舍过程见 [#4](https://github.com/MrGeDiao/shuorenhua/issues/4)，`structural` 缩水不可控的双模型对照实跑见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md)。后续各版的 scope 回归结果登记在 [evals/run-manifest.md](evals/run-manifest.md)，最近一轮是 v2.2.1 的两条 `in-place` 长文误杀防护（[evals/results-v2.2.1.md](evals/results-v2.2.1.md) §7）。
 
 ### 改完往哪个方向靠
 
