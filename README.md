@@ -14,7 +14,7 @@
 <p align="center">
   给 Codex、Claude Code、Cursor、ChatGPT 和自建 agent 用。
   <br>
-  改聊天、技术同步、README、论坛帖和中文长文：先保住事实，再把那股“一眼 AI”的腔调降下来。
+  改聊天、技术同步、README、论坛帖和中文长文。压掉那股“一眼 AI”的腔调，事实、版本和责任一个都不动。
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@
   <a href="#常见问题">FAQ</a>
 </p>
 
-`说人话` 专治那种“每个字都对，但一看就不是你写的”中文。它不把空话包装得更漂亮，也不替你编新事实；它先护住版本、命令、责任和证据，再拆掉过度承接、工程师腔、小红书 AI 腔、翻译腔和无源权威铺垫。目标很简单：改完你敢直接发。
+`说人话` 专治那种“每个字都对，但一看就不是你写的”中文。它清理过度承接、工程师腔、小红书 AI 腔、翻译腔和无源权威铺垫，同时锁住版本、命令、责任和证据。它不替你编新事实，也不把空话包装得更漂亮。改完你敢直接发。
 
 它适合这些场景：
 
@@ -43,11 +43,9 @@
 |------|------------|
 | 日常聊天 | 删掉过度承接、推销式结尾和工程汇报腔，保留口语感 |
 | 技术状态同步 | 保住事实、版本、命令、报错和责任归属，压低套话 |
-| README / release note | 先讲清楚项目、变更、验证和限制，不写发布宣言 |
+| README / release note | 第一屏说清这是什么、给谁用；变更、验证和限制列全 |
 | 论坛帖 / issue 回复 | 像维护者在认真沟通，不像客服公告或营销稿 |
 | 中文长文 | 句内清理保住节奏，整句空话列「建议删除」清单交你确认，不让长文越改越短 |
-
-检索关键词：中文 AI 写作、中文 humanizer、去 AI 味、AI writing humanizer、Chinese writing style。
 
 ## 改成什么样
 
@@ -149,7 +147,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 ## 它怎么判断怎么改
 
-`说人话` 不是见词就替换。一句话原则：
+`说人话` 不是见词就替换。
 
 > **先保信息，再谈风格。**
 
@@ -191,7 +189,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 ### 按发布目的细分（Scene Packs）
 
-可发布文本再按「发到哪里」细分，不是换语气，是按发布目的决定改法：README 第一屏要说清这是什么、给谁用；release note 要列清变更、验证和限制；论坛帖像维护者分享观察和取舍，不像公司公告；issue 回复先确认问题和下一步，不做客服式安抚。每个子场景的目标和常见病灶见 [references/scene-packs.md](references/scene-packs.md)。
+可发布文本再按「发到哪里」细分。这不是换语气，是按发布目的决定改法：README 第一屏要说清这是什么、给谁用；release note 要列清变更、验证和限制；论坛帖像维护者分享观察和取舍，不像公司公告；issue 回复先确认问题和下一步。每个子场景的目标和常见病灶见 [references/scene-packs.md](references/scene-packs.md)。
 
 ### 长文不缩水：三档 scope
 
@@ -207,12 +205,12 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 ### 改完往哪个方向靠
 
-清理不是只删词。它也会把文本往这些方向拉：
+清理不只是删词，它也会把文本往这些方向拉：
 
 - 具体动作优先于抽象拔高
 - 真主语和真动作优先于姿态层
 - 允许轻微不对称，不把每句都抛光成同一种腔
-- 按场景校准，不把聊天改成公告，也不把文档改成段子
+- 按场景校准，聊天和文档不套同一种腔
 
 ## 评测
 
@@ -277,6 +275,8 @@ v2.2.0 起，改写输出落盘后先用零依赖硬判脚本 `python3 automatio
 **shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with an 82-case benchmark (blind inputs, dual-model judging, false-positive guards) and a long-form mode that cleans text without shrinking it.
 
 Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin install shuorenhua@shuorenhua`. Other agents: `npx skills add MrGeDiao/shuorenhua`. More guides: [install/](install/). Everything else in this repo is written in Chinese.
+
+<sub>关键词 / keywords：中文 AI 写作、中文 humanizer、去 AI 味、AI writing humanizer、Chinese writing style</sub>
 
 ## 常见问题
 
