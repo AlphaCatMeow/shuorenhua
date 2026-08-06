@@ -19,7 +19,9 @@
 
 ## 2. 四轮 targeted 实跑
 
-Codex 侧走 `codex exec --sandbox read-only`；Claude 侧因本机 `claude` CLI 未登录（`Not logged in`），改用冷启动 subagent 执行，同样只给 `SKILL.md` / `references/` / `benchmark-blind.md`，不给 `benchmark.md` 及任何含预期的文件。两侧口径一致，均为盲测。
+Codex 侧走 `codex exec --sandbox read-only`；Claude 侧改用冷启动 subagent 执行，同样只给 `SKILL.md` / `references/` / `benchmark-blind.md`，不给 `benchmark.md` 及任何含预期的文件。两侧口径一致，均为盲测。
+
+> 关于 Claude 侧为什么不走 `claude --print`：本轮在 Claude Agent SDK 宿主环境下运行（`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` 已设、`ANTHROPIC_BASE_URL` 由宿主注入、无 `~/.claude/.credentials.json`）。凭证由宿主托管且不落盘，从 shell 另起的 `claude` 子进程走标准凭证查找路径拿不到 token，报 `Not logged in`。这是进程边界问题，不是账号未登录。被测模型仍是 Claude Opus 5，与 CLI 路径同模型同口径。
 
 | 轮次 | 规则状态 | Codex SF-47 | Claude SF-47 | SNF-37（双侧） |
 |------|----------|-------------|--------------|----------------|

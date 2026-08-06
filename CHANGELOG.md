@@ -22,7 +22,7 @@
 - README、`evals/real-samples.md`、`automation/eval/README.md` 批次表同步到 84 条。
 
 ### Tested
-- targeted 双模型盲测四轮（B-12 = SF-47、B-38 = SNF-37），Codex 侧走 `codex exec --sandbox read-only`，Claude 侧因本机 CLI 未登录改用冷启动 subagent，同样只给 `SKILL.md` / `references/` / `benchmark-blind.md`，不给预期。
+- targeted 双模型盲测四轮（B-12 = SF-47、B-38 = SNF-37），Codex 侧走 `codex exec --sandbox read-only`，Claude 侧因宿主托管凭证不共享给 shell 子进程（非账号未登录）改用同模型冷启动 subagent，同样只给 `SKILL.md` / `references/` / `benchmark-blind.md`，不给预期。
 - r2（阈值已加、豁免未剔除）：双侧均识别密度超标并降密度；Claude 改 2 处 ✅，Codex 改 3 处但抹平了一处豁免项，记 ⚠️。交叉判分 L1 失败 0、SNF 误杀 0。Claude 侧 judge 指出阈值与「保留 1–2 处」自相矛盾——短文里保留 2 处会被同一条规则再次判超标。
 - r3（加「豁免先剔除」后）：**出现回归**，双侧对 SF-47 全部判 no-op。原因是「对比本身是论证骨架」缺可判定边界，任何带信息的对比都能套；且本版曾把 SF-40 的用例级例外「作者刻意用对比承载全文论点」误提升为通用豁免口。
 - r4（豁免加上限 2 + 论证骨架加可判定判据 + 删除越界的通用豁免口）：回归修复。Claude 改满 2 处非豁免且未用倒装充数 ✅；Codex 改 1 处、留 1 处，记 ⚠️（L2，不阻塞）。双侧 SNF-37 均 no-op，0 误杀。

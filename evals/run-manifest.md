@@ -105,7 +105,7 @@
 - 被测模型：codex-cli 0.146.1（Codex 侧）/ Claude Opus 5 冷启动 subagent（Claude 侧）
 - judge 模型：Codex 判 Claude 改写、Claude 判 Codex 改写（r2 轮双向交叉）
 - CLI 版本：codex 0.146.1 / claude 2.1.222
-- 已知偏差：本机 `claude` CLI 未登录（`Not logged in`），Claude 侧改用冷启动 subagent 执行，文件访问纪律与 CLI 口径一致（只给 `SKILL.md` + `references/` + `benchmark-blind.md`，不给含预期的文件）；与历史轮次的 `claude --print` 路径不完全可比
+- 已知偏差：本轮在 Claude Agent SDK 宿主环境下跑，凭证由宿主托管、不落盘（`CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST` 已设，无 `~/.claude/.credentials.json`），从 shell 另起的 `claude` 子进程拿不到 token（报 `Not logged in`，非账号问题）。Claude 侧因此改用冷启动 subagent，文件访问纪律与 CLI 口径一致（只给 `SKILL.md` + `references/` + `benchmark-blind.md`，不给含预期的文件）；同模型（Opus 5），但与历史轮次的 `claude --print` 进程路径不完全可比
 - 结果：四轮迭代（r1 因用例卡阈值边界作废 / r2 / r3 出现由本版改动引入的回归 / r4 修复）；L1 硬失败 0（全轮）；SNF 误杀 0；SF-47 终轮 Claude ✅、Codex ⚠️（L2，不阻塞）
 - 归档：`results-v2.3.0.md`
 - 原始输出：`tasks/current/eval-runs/2026-08-06-{codex,claude,judge}/`（未入库）
