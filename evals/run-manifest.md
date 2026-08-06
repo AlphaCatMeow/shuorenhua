@@ -110,6 +110,18 @@
 - 归档：`results-v2.3.0.md`
 - 原始输出：`tasks/current/eval-runs/2026-08-06-{codex,claude,judge}/`（未入库）
 
+## v2.3.0 影响面回归 7 条（2026-08-06）
+
+- 评测集：`benchmark.md` @ v2.3.0（84 条：47 SF + 37 SNF）；范围 = B-12 / B-15 / B-25 / B-53 / B-54 / B-63 / B-79（SF-47 / SF-16 / SF-39 / SF-04 / SNF-29 / SF-40 / SNF-30）
+- 口径：targeted 双模型交叉；盲测 = 是；选样依据 = 全库扫描后按新密度阈值行为会改变的全部用例（15 条含骨架，7 条达阈值），非抽样
+- 被测模型：codex-cli 0.146.1 / Claude Opus 5 冷启动 subagent
+- judge 模型：Codex 判 Claude、Claude 判 Codex（双向）
+- CLI 版本：codex 0.146.1 / claude 2.1.222
+- 结果：L1 硬失败 0（双侧）；**SNF 误杀 0/2（双侧）**；L2 口径 Codex 判 Claude 1/4、Claude 判 Codex 2/4；L3（SF-40）双侧 ✅
+- 结论：新密度判据未引入误杀，也未造成「该改的反而不改」；两条 ⚠️ 的成因分别是词表层漏改与预期骨架覆盖不全，与第 1 条无关
+- 归档：`results-v2.3.0.md` §7
+- 原始输出：`tasks/current/eval-runs/2026-08-06-{codex,claude,judge}/*regression7*`（未入库）
+
 ## 登记模板（新一轮实跑照抄填写）
 
 ```markdown
