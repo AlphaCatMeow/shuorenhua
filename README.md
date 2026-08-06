@@ -20,7 +20,7 @@
 <p align="center">
   <a href="https://github.com/MrGeDiao/shuorenhua/stargazers"><img src="https://img.shields.io/github/stars/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=stars" alt="GitHub stars"></a>
   <a href="https://github.com/MrGeDiao/shuorenhua/releases"><img src="https://img.shields.io/github/v/release/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=release" alt="GitHub release"></a>
-  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-82%20cases-2563eb?style=for-the-badge" alt="Benchmark: 82 cases"></a>
+  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-84%20cases-2563eb?style=for-the-badge" alt="Benchmark: 84 cases"></a>
   <a href="evals/real-samples.md"><img src="https://img.shields.io/badge/scenario%20samples-19-16a34a?style=for-the-badge" alt="Scenario samples: 19"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/MrGeDiao/shuorenhua?style=for-the-badge" alt="License"></a>
 </p>
@@ -216,12 +216,12 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 规则层覆盖 210+ 中文短语、96 条英文短语、20 类结构反模式。
 
-当前评测集共 82 条：
+当前评测集共 84 条：
 
 | 类型 | 数量 | 目标 |
 |------|------|------|
-| SF | 46 | 应该改的文本必须命中并改掉主要问题 |
-| SNF | 36 | 不该误杀的文本必须放行或轻提示 |
+| SF | 47 | 应该改的文本必须命中并改掉主要问题 |
+| SNF | 37 | 不该误杀的文本必须放行或轻提示 |
 | 场景样本 | 19 | 整段样本按自然、保真、可直接发三项评分，长文加 `长度节奏` |
 | Scene Packs | 8 | README / release note / forum post / issue reply 的正反样本 |
 | Long-form In-place | 4 | 长文保长度场景，检查字数留存、句数对齐和关键转场 |
@@ -272,7 +272,7 @@ v2.2.0 起，改写输出落盘后先用零依赖硬判脚本 `python3 automatio
 
 ## English
 
-**shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with an 82-case benchmark (blind inputs, dual-model judging, false-positive guards) and a long-form mode that cleans text without shrinking it.
+**shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with an 84-case benchmark (blind inputs, dual-model judging, false-positive guards) and a long-form mode that cleans text without shrinking it.
 
 Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin install shuorenhua@shuorenhua`. Other agents: `npx skills add MrGeDiao/shuorenhua`. More guides: [install/](install/). Everything else in this repo is written in Chinese.
 
