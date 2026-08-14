@@ -56,7 +56,7 @@ mkdir -p tasks/current/eval-runs/2026-06-18-codex \
 | `B17-32` | B-17 到 B-32 |
 | `B33-48` | B-33 到 B-48 |
 | `B49-64` | B-49 到 B-64 |
-| `B65-84` | B-65 到 B-84 |
+| `B65-103` | B-65 到 B-103 |
 
 新增或补跑用例可以单独成批：targeted 补跑先查 `benchmark-map.md` 找到对应 B 编号，按 B 编号下发给被测模型（不要把 SF/SNF 编号透给被测模型），输出命名可用 `targeted-vX.Y.Z`。历史批次（v1.9.x 的 `SF01-14` 等命名）是盲测前的旧口径，归档不改。
 
@@ -94,6 +94,22 @@ python3 automation/eval/hard_metrics.py --pair <原文> <改后> --report-json -
 单条模式自动剥模型输出里的 `## B-xx` 标题和「处理结果：」前缀，只对正文判；`--scene` 带上 `long / in-place` 标签时才会输出留存率判据（没有场景标签时留存为 `null`，只算破折号与粗核）。
 
 判分时把 `hard-metrics.md` 的对应数字提供给 judge（见 `judge-prompt.md`），judge 不再自己数长文留存。
+
+### residual 统计（v2.3.0 起）
+
+`hard_metrics.py` 还可以单独查看篇章级残留形状：
+
+```bash
+python3 automation/eval/hard_metrics.py --residual 稿件.md
+python3 automation/eval/hard_metrics.py --residual 稿件.md --report-json
+python3 automation/eval/hard_metrics.py --calibrate
+```
+
+- `--residual` 输出句长变异系数、连词密度（每千字）、动词名词化命中、800 字窗口内借喻场数量，以及 `「」/『』` 括起的短语候选数。代码块、URL、frontmatter 等先用等长空格屏蔽，行号和字符偏移不漂。
+- `--calibrate` 在 `benchmark.md` 的 SF / SNF 两组语料上实测分布，自动排除 B-xx 盲测副本。它用于检验阈值能不能成立，不负责替作者硬凑阈值。
+- 五项目前都只报数、不判死、不影响退出码。v2.3.0 的 95 条标定给出一个明确负结论：连词密度不能设全局线——SNF 最高 81.08/千字，反而高于 SF 的 80.00；`docs` / `status` 里的连词常常承担真实条件和因果。规则侧因此只在 `public-writing` 叙事中按分布判断，见 `references/structures.md` 第 23 条。
+- 合并版 v2.3.0 在 103 条（57 SF / 46 SNF）上的 `「」/『』` 候选计数同样给出负结论：两组中位数与 p90 都是 0，max 都是 3。SF-55 的 3 处是抽象概念上的自造高亮，SNF-44 的 3 处是小说人物对白；原始计数完全同值、结论相反，因此不照抄上游「一篇 3 处以上」，不设阈值。脚本只报候选数，引用、正式术语、对白和文学场景由人工复核。
+- 句长 CV 仍缺人写长文对照组（够 12 句的 SF 仅 2 条、SNF 0 条），本版不设阈值；缺口留给后续版本。
 
 ## 改写批
 

@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""v2.2.0 eval harness 硬判：零依赖脚本，输出字数留存率 / 破折号密度 / protected spans 粗核。
+"""eval harness 零依赖硬判与 residual 统计。
 
-规格：tasks/current/roadmap-2026H2-v2.0.1-v2.3.md §6（v2.2.0）。
+v2.2.0：字数留存率 / 破折号密度 / protected spans 粗核（规格见旧 roadmap §6）。
+v2.3.0：新增句长 CV / 连词密度 / 名词化 / 借喻场统计与 benchmark 标定模式。
+v2.3.0 合并批次：residual 层新增「」/『』高亮短语候选计数，继续只报数不判死。
+合并版 v2.3.0 标定实测（SF 57 / SNF 46）：候选数两组中位数与 p90 均为 0、
+max 均为 3；SF-55 是自造高亮，SNF-44 是人物对白，原始计数不可分，
+因此不设阈值、不影响退出码。
 定位：把 judge 模型能被脚本替掉的判定项拿出来硬判——降成本、提稳定性。
 判死 vs 报警：字数留存率与破折号密度按 run-eval.md 既有口径直接判过/不过；
 protected spans 粗核只报警不判死，缺失留给 judge 复核（粗核是正则匹配，
@@ -277,6 +282,236 @@ def dash_metrics(blocks_text, original):
     }
 
 
+# ---------------------------------------------------------------------------
+# residual 统计层（v2.3.0）
+# ---------------------------------------------------------------------------
+# 定位：既有三项硬判都在「保真侧」——改写有没有改坏。这一层补「残留侧」：
+# 改完读起来还像不像模型写的。判据全部不依赖词表，抓的是「换一套词继续做
+# 同一件事」——词表拦不住换字，统计量拦得住。
+#
+# 全部只报警，不判死，不影响退出码。阈值由 --calibrate 在 evals/benchmark.md
+# 的 SF（该改）/ SNF（不该改）两组语料上实测标定，不照抄外部经验值。
+#
+# v2.3.0 标定实测结论（`--calibrate`，SF 53 / SNF 42）：
+#   - 句长变异系数：**标不了**。够 12 句的样本 SF 只有 2 条、SNF 零条。
+#     标定它需要「人写长文」对照组，本仓库语料里一篇都没有（real-samples.md
+#     的 5 条 long 全是 AI 味样本，没有反例）。缺口留给后续版本。
+#   - 连词密度：**全局判据被实测否掉，不设阈值**。SNF 中位 5.26 / 千字高于
+#     SF 中位 0.00，且 SNF max 81.08 高于 SF max 80.00——不该改的比该改的
+#     密度还高。benchmark 里有一对同密度对照用例钉住这件事：SF-50
+#     （public-writing 叙事）80.00 该删一半，SNF-39（docs 迁移说明）81.08
+#     一个都不能删。原因是 docs / status 靠显性连词承担条件与因果。照抄
+#     外部「每千字 7 个」的阈值会优先误伤不该改的文本，因此本层只输出
+#     数值供人看，判定交给 structures.md 第 23 条的场景限定。
+#   - 名词化 / 借喻场：区分度好，且 SNF 侧零误报。名词化 SF max 4（SF-48）、
+#     SNF max 0；借喻场 SF max 5（SF-52）、SNF max 1（SNF-41 的三套名义命中
+#     被字面用法排除表滤成一套，正是该用例要验的）。两项都只报数不判死。
+#
+# v2.3.0 合并批次标定实测结论（`--calibrate`，SF 57 / SNF 46）：
+#   - 「」/『』高亮短语：**原始计数不可设阈值**。两组中位数与 p90 都是 0，
+#     max 都是 3。SF-55 的 3 处是抽象概念上的自造高亮，SNF-44 的 3 处是小说
+#     人物对白；同一个计数对应相反结论，照抄上游「一篇 3 处以上」会直接误伤。
+#     因此脚本只机械统计候选，是否属于自造金句仍由人结合引用、正式术语和
+#     文学场景判断，不设阈值、不影响退出码。
+
+# 显性连词：中文小句靠语序和事理相接，连词密度高是英文式衔接的搬运痕迹
+CONJUNCTIONS_ZH = (
+    "因为", "所以", "但是", "然而", "同时", "此外", "而且", "并且",
+    "因此", "不仅", "于是", "另外", "总之", "首先", "其次",
+    # 条件连词同属显性衔接，是 if/then/otherwise 的搬运重灾区。
+    # 单字「则」不收——「规则 / 准则 / 原则」误伤面太大。
+    "如果", "否则",
+)
+
+# 动词名词化：`进行 / 实现 / 完成 / 开展 / 起到` 带一个动名词，句子变长信息没变
+NOMINALIZATION_PATTERNS = (
+    re.compile(r"进行(?:了|一次|一场|着)?[^。，！？\n]{0,10}(?:调整|优化|升级|分析|讨论|沟通|梳理|复盘|迭代|探索|尝试|思考|规划|布局|评估|排查|验证)"),
+    re.compile(r"实现了?[^。，！？\n]{0,14}的?[^。，！？\n]{0,6}(?:提升|增长|突破|转变|跃升|落地|改善)"),
+    re.compile(r"完成了?对[^。，！？\n]{0,16}的"),
+    re.compile(r"起到了?[^。，！？\n]{0,12}的?作用"),
+    re.compile(r"具有[^。，！？\n]{0,10}(?:意义|价值)"),
+    re.compile(r"开展[^。，！？\n]{0,10}(?:工作|建设|研究|合作)"),
+)
+
+# 借喻场：同一段里从多套不相干的比喻系统借词，是用比喻替代说明的信号。
+# 单套用得准没问题，多套混用才报警。
+METAPHOR_FIELDS = {
+    "道路竞赛": ("赛道", "跑道", "岔路", "十字路口", "终点线", "起跑线", "弯道超车"),
+    "战争攻防": ("护城河", "壁垒", "厮杀", "血战", "阵地", "弹药", "突围", "打法"),
+    "建筑灾害": ("坍塌", "崩塌", "地基", "支柱", "废墟", "基石"),
+    "温度": ("降温", "升温", "冷却", "余温", "白热化", "点燃"),
+    "仓储": ("仓库", "库存", "抽屉", "货架", "囤积"),
+    "海洋航行": ("蓝海", "红海", "浪潮", "潮水", "灯塔", "彼岸", "风口"),
+    "机器器官": ("齿轮", "引擎", "发动机", "血管", "骨架", "神经末梢"),
+}
+
+# 借喻词的字面用法排除：这些前缀出现时该词是技术术语或本义，不算借喻。
+# 误伤防护优先——本仓库的判据默认宁可漏报不可误杀。
+METAPHOR_LITERAL_PREFIX = {
+    "引擎": ("搜索", "渲染", "游戏", "物理", "推荐", "规则", "模板", "查询", "存储"),
+    "发动机": ("汽车", "飞机", "柴油", "航空"),
+    "仓库": ("代码", "git", "Git", "远程", "本地", "私有", "镜像"),
+    "库存": ("商品", "实际", "系统", "剩余"),
+    "阵地": ("前沿",),
+    "风口": ("出", "通", "进"),
+    "打法": ("战术",),
+}
+
+
+def mask_non_prose(text):
+    """屏蔽代码块、行内代码、链接目标、URL 和 HTML 标签，保留字符偏移与换行。
+
+    用等长空格替换而不是删除：偏移不变，后续算行号和窗口距离才准。
+    """
+    def mask(match):
+        return "".join("\n" if ch == "\n" else " " for ch in match.group())
+
+    patterns = (
+        re.compile(r"\A---\s*\n.*?\n---\s*(?:\n|\Z)", re.DOTALL),
+        re.compile(r"```.*?```", re.DOTALL),
+        re.compile(r"`[^`\n]*`"),
+        re.compile(r"\]\([^\n)]*\)"),
+        re.compile(r"https?://[^\s)>]+"),
+        re.compile(r"<[^>\n]+>"),
+    )
+    out = text
+    for pattern in patterns:
+        out = pattern.sub(mask, out)
+    return out
+
+
+def strip_blockquote(text):
+    """剥 blockquote 前缀（benchmark 语料的引用块与模型输出都可能带 `> `）。
+
+    与 dash_metrics 内的同名局部函数功能一致；那个是既有代码的闭包，这里
+    单独提供模块级版本给 residual 层用，不改动原函数。
+    """
+    lines = []
+    for line in text.splitlines():
+        if line.startswith("> "):
+            lines.append(line[2:])
+        elif line.startswith(">"):
+            lines.append(line[1:])
+        else:
+            lines.append(line)
+    return "\n".join(lines)
+
+
+def han_count(text):
+    return len(re.findall(r"[一-鿿]", text))
+
+
+def _non_overlapping(text, terms):
+    """长词优先的不重叠匹配，返回 [(位置, 词)]。避免「因此」被「因」重复计数。"""
+    matches, occupied = [], []
+    for term in sorted(terms, key=len, reverse=True):
+        for m in re.finditer(re.escape(term), text):
+            start, end = m.span()
+            if any(start < oe and end > os for os, oe in occupied):
+                continue
+            matches.append((start, term))
+            occupied.append((start, end))
+    return sorted(matches)
+
+
+def sentence_length_cv(text, min_sentences=12):
+    """句长变异系数：人写的长短句差距大，模型的句长彼此接近。
+
+    返回 (cv, 句数)。句数不足时 cv 为 None——短文本上这个量没有意义，
+    不做外推。
+    """
+    lengths = [
+        han_count(m.group())
+        for m in re.finditer(r"[^。！？!?\n]+[。！？!?]", text)
+        if han_count(m.group()) >= 4
+    ]
+    if len(lengths) < min_sentences:
+        return None, len(lengths)
+    mean = sum(lengths) / len(lengths)
+    if mean == 0:
+        return None, len(lengths)
+    variance = sum((v - mean) ** 2 for v in lengths) / len(lengths)
+    return (variance ** 0.5) / mean, len(lengths)
+
+
+def conjunction_density(text):
+    """显性连词密度（每千字）。返回 (密度, 命中数, 汉字数)。"""
+    han = han_count(text)
+    if han == 0:
+        return None, 0, 0
+    hits = _non_overlapping(text, CONJUNCTIONS_ZH)
+    return len(hits) * 1000.0 / han, len(hits), han
+
+
+def nominalization_hits(text):
+    """动词名词化命中。返回 [(位置, 命中片段)]。"""
+    out = []
+    for pattern in NOMINALIZATION_PATTERNS:
+        for m in pattern.finditer(text):
+            out.append((m.start(), m.group()))
+    return sorted(out)
+
+
+def metaphor_fields_hit(text, window=800):
+    """借喻场统计：返回 (最大同窗口场数, 命中明细)。
+
+    命中明细为 [(位置, 场名, 词)]。字面用法（搜索引擎、代码仓库）先排除。
+    """
+    hits = []
+    for field, words in METAPHOR_FIELDS.items():
+        for word in words:
+            for m in re.finditer(re.escape(word), text):
+                prefixes = METAPHOR_LITERAL_PREFIX.get(word, ())
+                head = text[max(0, m.start() - 4):m.start()]
+                if any(head.endswith(p) for p in prefixes):
+                    continue
+                hits.append((m.start(), field, word))
+    hits.sort()
+    best = 0
+    for i, (start, _, _) in enumerate(hits):
+        fields = {h[1] for h in hits[i:] if h[0] - start <= window}
+        best = max(best, len(fields))
+    return best, hits
+
+
+def highlight_quote_hits(text):
+    """「」/『』括起的短语候选。返回 [(位置, 内容)]。
+
+    只收同一行 1–30 字符的短内容，排除大段引用；脚本无法可靠区分自造金句、
+    正式术语和人物对白，因此这一项只提供 residual 观测，不直接判定。
+    """
+    hits = []
+    for pattern in (r"「([^「」\n]{1,30})」", r"『([^『』\n]{1,30})』"):
+        for match in re.finditer(pattern, text):
+            hits.append((match.start(), match.group(1)))
+    return sorted(hits)
+
+
+def residual_metrics(text):
+    """一段文本的残留统计量。输入应为正文（调用方负责剥 blockquote）。"""
+    prose = mask_non_prose(text)
+    cv, sentences = sentence_length_cv(prose)
+    density, conj_hits, han = conjunction_density(prose)
+    noms = nominalization_hits(prose)
+    fields, field_hits = metaphor_fields_hit(prose)
+    quotes = highlight_quote_hits(prose)
+    quote_density = len(quotes) * 1000.0 / han if han else None
+    return {
+        "han": han,
+        "sentences": sentences,
+        "sentence_cv": None if cv is None else round(cv, 4),
+        "conjunction_per_1k": None if density is None else round(density, 2),
+        "conjunction_hits": conj_hits,
+        "nominalization": len(noms),
+        "nominalization_samples": [s for _, s in noms[:4]],
+        "metaphor_fields": fields,
+        "metaphor_samples": sorted({w for _, _, w in field_hits})[:6],
+        "highlight_quotes": len(quotes),
+        "highlight_quote_per_1k": None if quote_density is None else round(quote_density, 2),
+        "highlight_quote_samples": [s for _, s in quotes[:6]],
+    }
+
+
 def retention_status(ratio):
     if ratio >= RETENTION_TARGET:
         return "ok"
@@ -442,7 +677,13 @@ def summarize(result):
     """把单条结果变成 markdown 小节（run-eval.md 口径的判定）。"""
     lines = [f"### {result['case']} | {result['scene']}", ""]
     if result["is_long"] and not result["retention"]:
-        lines.append("- 字数留存率：bounded 长文不适用留存率判据（run-eval.md 口径只约束 in-place 长文）")
+        # 非 in-place 的长文都走这一支：bounded、no-op 判定用例都在内。
+        # 早期措辞一律写成「bounded 长文」，会让 judge 误以为用例被判成了 bounded
+        # （v2.3.0 跨模型盲测中 judge 对 SNF-38 提出过这一点），改为按场景标签直述。
+        lines.append(
+            f"- 字数留存率：不适用（场景标签 `{result['scene'] or '未标注'}` 不含 in-place，"
+            "run-eval.md 口径只对 in-place 长文判留存率）"
+        )
     if result["retention"]:
         r = result["retention"]
         if r.get("noop_unverified"):
@@ -625,6 +866,105 @@ def analyze_run(root, run_dir):
     return 1 if any(rep["long_form"]["fail"] for rep in model_reports.values()) else 0
 
 
+def _percentile(values, q):
+    """线性插值分位数。零依赖手写，与文件其余部分保持同一风格。"""
+    if not values:
+        return None
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    idx = (len(ordered) - 1) * q
+    lo = int(idx)
+    hi = min(lo + 1, len(ordered) - 1)
+    frac = idx - lo
+    return ordered[lo] * (1 - frac) + ordered[hi] * frac
+
+
+def calibrate(root):
+    """在 benchmark 语料上实测 residual 判据分布，供定阈值使用。
+
+    分组：`SF-xx` 是该改的 AI 味样本，`SNF-xx` 是不该改的正常样本，两组
+    天然构成对照组。`B-xx` 是 SF/SNF 的盲测副本，计入会重复污染分布，排除。
+
+    输出每组每个指标的样本数与分位数。阈值应落在两组分布的分离处，
+    并偏向 SNF 一侧——误伤防护优先，宁可漏报不可误杀。
+    """
+    cases = parse_cases(root)
+    groups = {"SF": [], "SNF": []}
+    for cid, scene, quote in cases:
+        prefix = cid.split("-")[0]
+        if prefix not in groups:
+            continue
+        groups[prefix].append((cid, scene, strip_blockquote(quote).strip()))
+
+    if not groups["SF"] or not groups["SNF"]:
+        print("hard_metrics: benchmark.md 没有解析到 SF/SNF 分组，无法标定", file=sys.stderr)
+        return 2
+
+    print("# residual 判据标定（evals/benchmark.md）\n")
+    print(f"样本：SF {len(groups['SF'])} 条（该改）/ SNF {len(groups['SNF'])} 条（不该改）")
+    print("B-xx 盲测副本已排除，避免同一文本重复计入分布。\n")
+
+    collected = {}
+    for name, items in groups.items():
+        stats = {"cv": [], "conj": [], "nom": [], "field": [], "quote": []}
+        for _, _, body in items:
+            m = residual_metrics(body)
+            if m["sentence_cv"] is not None:
+                stats["cv"].append(m["sentence_cv"])
+            if m["conjunction_per_1k"] is not None and m["han"] >= 80:
+                stats["conj"].append(m["conjunction_per_1k"])
+            stats["nom"].append(m["nominalization"])
+            stats["field"].append(m["metaphor_fields"])
+            stats["quote"].append(m["highlight_quotes"])
+        collected[name] = stats
+
+    labels = {
+        "cv": "句长变异系数（句数 ≥ 12 才计）",
+        "conj": "连词密度 每千字（汉字 ≥ 80 才计）",
+        "nom": "名词化命中数 每条",
+        "field": "同窗口借喻场数 每条",
+        "quote": "「」/『』高亮短语候选数 每条",
+    }
+    for key, label in labels.items():
+        print(f"## {label}\n")
+        print("| 组 | n | p10 | p25 | 中位 | p75 | p90 | max |")
+        print("|---|---|---|---|---|---|---|---|")
+        for name in ("SF", "SNF"):
+            vals = collected[name][key]
+            if not vals:
+                print(f"| {name} | 0 | - | - | - | - | - | - |")
+                continue
+            cells = " | ".join(
+                "-" if v is None else f"{v:.2f}"
+                for v in (
+                    _percentile(vals, 0.10),
+                    _percentile(vals, 0.25),
+                    _percentile(vals, 0.50),
+                    _percentile(vals, 0.75),
+                    _percentile(vals, 0.90),
+                    max(vals),
+                )
+            )
+            print(f"| {name} | {len(vals)} | {cells} |")
+        print()
+
+    print("## 逐条命中（名词化 / 借喻场 / 高亮短语非零项）\n")
+    for name, items in groups.items():
+        for cid, scene, body in items:
+            m = residual_metrics(body)
+            if m["nominalization"] or m["metaphor_fields"] >= 2 or m["highlight_quotes"]:
+                print(
+                    f"- {cid}（{scene.strip()}）：名词化 {m['nominalization']}"
+                    f"{'（' + '、'.join(m['nominalization_samples']) + '）' if m['nominalization_samples'] else ''}"
+                    f"，借喻场 {m['metaphor_fields']}"
+                    f"{'（' + '、'.join(m['metaphor_samples']) + '）' if m['metaphor_samples'] else ''}"
+                    f"，高亮短语候选 {m['highlight_quotes']}"
+                    f"{'（' + '、'.join(m['highlight_quote_samples']) + '）' if m['highlight_quote_samples'] else ''}"
+                )
+    return 0
+
+
 def read_text_safe(path):
     """读文件，缺文件时打印错误并退出 2（自身错误口径）。"""
     try:
@@ -648,15 +988,35 @@ def single_pair(original_path, output_path, scene=""):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="说人话 eval harness 硬判脚本（v2.2.0）")
+    ap = argparse.ArgumentParser(description="说人话 eval harness 硬判与 residual 统计（v2.3.0）")
     ap.add_argument("--run", metavar="DIR", help="扫批次目录（含 rewrite-*.md），输出 hard-metrics 报告")
     ap.add_argument("--pair", nargs=2, metavar=("ORIG", "OUT"), help="单条对照：原文本文件 + 改后文本文件（- 表示 stdin）")
     ap.add_argument("--stdin", metavar="ORIG", help="原文本文件，改后文本从 stdin 读")
     ap.add_argument("--report-json", action="store_true", help="--pair 模式输出单行 JSON（供 judge 输入拼接）")
     ap.add_argument("--scene", metavar="SCENE", default="", help="单条模式（--pair/--stdin）的用例场景标签，如 'public-writing / long / in-place'，用于长文留存判据")
+    ap.add_argument("--residual", metavar="FILE", help="对单个文本算 residual 统计量（句长 CV / 连词密度 / 名词化 / 借喻场 / 「」高亮短语），只报警不判死；- 表示 stdin")
+    ap.add_argument("--calibrate", action="store_true", help="在 evals/benchmark.md 的 SF / SNF 两组语料上实测 residual 判据分布，用于定阈值")
     args = ap.parse_args()
 
     root = Path(__file__).resolve().parents[2]
+
+    if args.calibrate:
+        return calibrate(root)
+
+    if args.residual:
+        text = sys.stdin.read() if args.residual == "-" else read_text_safe(args.residual)
+        res = residual_metrics(strip_blockquote(text))
+        if args.report_json:
+            print(json.dumps(res, ensure_ascii=False))
+        else:
+            print(f"汉字数 {res['han']}，可计句数 {res['sentences']}")
+            cv = res["sentence_cv"]
+            print(f"- 句长变异系数：{'句数不足 12，不判' if cv is None else cv}")
+            print(f"- 连词密度：{res['conjunction_per_1k']} /千字（命中 {res['conjunction_hits']} 处）")
+            print(f"- 名词化：{res['nominalization']} 处 {res['nominalization_samples']}")
+            print(f"- 借喻场：{res['metaphor_fields']} 套 {res['metaphor_samples']}")
+            print(f"- 「」/『』高亮短语候选：{res['highlight_quotes']} 处，{res['highlight_quote_per_1k']} /千字 {res['highlight_quote_samples']}")
+        return 0
 
     if args.run:
         sys.exit(analyze_run(root, args.run))

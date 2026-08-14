@@ -20,8 +20,8 @@
 <p align="center">
   <a href="https://github.com/MrGeDiao/shuorenhua/stargazers"><img src="https://img.shields.io/github/stars/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=stars" alt="GitHub stars"></a>
   <a href="https://github.com/MrGeDiao/shuorenhua/releases"><img src="https://img.shields.io/github/v/release/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=release" alt="GitHub release"></a>
-  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-84%20cases-2563eb?style=for-the-badge" alt="Benchmark: 84 cases"></a>
-  <a href="evals/real-samples.md"><img src="https://img.shields.io/badge/scenario%20samples-19-16a34a?style=for-the-badge" alt="Scenario samples: 19"></a>
+  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-103%20cases-2563eb?style=for-the-badge" alt="Benchmark: 103 cases"></a>
+  <a href="evals/real-samples.md"><img src="https://img.shields.io/badge/scenario%20samples-20-16a34a?style=for-the-badge" alt="Scenario samples: 20"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/MrGeDiao/shuorenhua?style=for-the-badge" alt="License"></a>
 </p>
 
@@ -129,7 +129,7 @@ npx skills add MrGeDiao/shuorenhua
 
 项目内长期使用建议把 skill 文件拷进项目并在 `AGENTS.md` 写明触发条件，见 [install/codex.md](install/codex.md)。
 
-**只想先看问题、不要改稿**：指令里加一句「按 annotation mode 只标注不改写」。
+**只想先看问题、不要改稿**：指令里加一句「按 annotation mode 只标注不改写」。它逐条标问题族；一段文本要是本身没什么可写、只是被套话撑长了，会标成 `材料不足`，直说删完还剩什么，不拿换说法把篇幅填回去。
 
 Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
@@ -169,6 +169,8 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 | 工程师姿态腔（“收口”“兜住”“落盘”） | 按宾语判断；姿态层换成确认、核对、写入等动作 | `把结论落盘` → `把结论写进文档` |
 | 过度接住、心理判断、身份认证 | 去掉抚慰和发证书，只保留低承诺回应 | `你不是敏感，你只是……` → 具体回应 |
 | 翻译腔、句式过满 | 缩短主语和动作，保留术语和责任主体 | `基于……通过……来……` → 直接说动作 |
+| 名词化、同义词躲避 | 还原成直接动词；同一对象统一回最具体的说法，不轮换近义词 | `进行了优化` → `改了`；`木工 → 这门手艺 → 这项技能` → 统一写 `木工` |
+| 装饰性细节、多套借喻混用 | 细节要同时满足“无来源 + 删后文不变”才删；借喻先还原本义 | 凉咖啡、窗外小雨只负责造现场 → 删；`赛道 + 护城河 + 浪潮` → 说清实际变化 |
 | 标点腔（破折号密集或首句起手） | 按密度和位置改回逗号、冒号或断句；单次合理用法放行 | 连续 `——` → 分句 |
 | 无源权威（“研究表明”“业内人士认为”） | `chat / public-writing` 删除无法独立成立的整条论断；`docs / status` 标注缺来源 | 不把裸 `40%` 留成事实，也不降格成“会更快” |
 
@@ -201,7 +203,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 | `bounded`（长文默认） | 整句空话列成「建议删除（待确认）」清单，删多少你拍板 | `public-writing` 长文 |
 | `in-place` | 一句都不删，只句内降调 | 明确要求「完全原样」 |
 
-三档的取舍过程见 [#4](https://github.com/MrGeDiao/shuorenhua/issues/4)，`structural` 缩水不可控的双模型对照实跑见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md)。后续各版的 scope 回归结果登记在 [evals/run-manifest.md](evals/run-manifest.md)，最近一轮是 v2.2.1 的两条 `in-place` 长文误杀防护（[evals/results-v2.2.1.md](evals/results-v2.2.1.md) §7）。
+三档的取舍过程见 [#4](https://github.com/MrGeDiao/shuorenhua/issues/4)，`structural` 缩水不可控的双模型对照实跑见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md)。后续各版的 scope 回归结果登记在 [evals/run-manifest.md](evals/run-manifest.md)。最近一轮是合并版 v2.3.0 的新增 8 条 + 第一阶段 11 条影响面回归（[evals/results-v2.3.0.md](evals/results-v2.3.0.md) §9）：Codex `gpt-5.6-sol` 与 Claude `opus` 独立盲改写、双向交叉判分，硬约束失败 0、SNF 误杀 0，无 `❌`。SF-55 在两模型上都留有较淡的抽象隐喻，按 L2 风格警告记录，不阻塞发布。
 
 ### 改完往哪个方向靠
 
@@ -214,15 +216,15 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 ## 评测
 
-规则层覆盖 210+ 中文短语、96 条英文短语、20 类结构反模式。
+规则层覆盖 210+ 中文短语、96 条英文短语、25 类结构反模式。
 
-当前评测集共 84 条：
+当前评测集共 103 条：
 
 | 类型 | 数量 | 目标 |
 |------|------|------|
-| SF | 47 | 应该改的文本必须命中并改掉主要问题 |
-| SNF | 37 | 不该误杀的文本必须放行或轻提示 |
-| 场景样本 | 19 | 整段样本按自然、保真、可直接发三项评分，长文加 `长度节奏` |
+| SF | 57 | 应该改的文本必须命中并改掉主要问题 |
+| SNF | 46 | 不该误杀的文本必须放行或轻提示 |
+| 场景样本 | 20 | 整段样本按自然、保真、可直接发三项评分，长文加 `长度节奏` |
 | Scene Packs | 8 | README / release note / forum post / issue reply 的正反样本 |
 | Long-form In-place | 4 | 长文保长度场景，检查字数留存、句数对齐和关键转场 |
 | Bounded | 3 | 长文整句空话进删除清单，但不误删实句和节奏句 |
@@ -272,7 +274,7 @@ v2.2.0 起，改写输出落盘后先用零依赖硬判脚本 `python3 automatio
 
 ## English
 
-**shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with an 84-case benchmark (blind inputs, dual-model judging, false-positive guards) and a long-form mode that cleans text without shrinking it.
+**shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with a 103-case benchmark (blind inputs, dual-model judging, false-positive guards) and a long-form mode that cleans text without shrinking it.
 
 Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin install shuorenhua@shuorenhua`. Other agents: `npx skills add MrGeDiao/shuorenhua`. More guides: [install/](install/). Everything else in this repo is written in Chinese.
 

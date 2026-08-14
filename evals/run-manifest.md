@@ -122,6 +122,40 @@
 - 归档：`results-v2.2.1.md` §7
 - 原始输出：`tasks/current/eval-runs/2026-08-06-{codex,claude,judge}/*regression7*`（未入库）
 
+## v2.3.0 targeted + 影响面跨模型盲测（2026-08-07）
+
+- 评测集：`benchmark.md` @ v2.3.0（95 条：53 SF + 42 SNF）；范围 = 新增 11 条（SF-48–53 / SNF-38–42）+ 影响面 6 条（SF-32 / SNF-11 / SNF-12 / SNF-26 / SNF-29 / SNF-30）
+- 口径：三路盲测 + 交叉判分；盲测 = 是（`benchmark-blind.md` 由固定种子 20260711 在 2026-08-07 生成，指纹 `5e930eff…`，全程未再生成）。三条路径均只读 `SKILL.md` / `references/` / `benchmark-blind.md`，看不到预期与映射
+- 被测路径：Codex CLI 0.147.0（`gpt-5.6-sol`，reasoning `max`）；Claude Opus 5（Agent `model: opus` 冷启动）；Agent SDK 冷启动（`gpt-5.6-sol[1m]`，与 Codex 同模型不同执行路径）
+- judge 路径：Codex 判 Claude（targeted + 影响面）；Claude 判 Codex（targeted）；Codex 判 SDK、SDK 判 Codex（targeted + 影响面）。judge 均在改写完成后才读预期
+- 运行时间线：Claude 路径最初因订阅额度耗尽 + 宿主托管凭证不下发给 shell 子进程（`claude --print` 报 `Not logged in`）无法运行，先出了一版 Codex/SDK 同模型双路结论；额度恢复后在同一份未改动的规则与 blind 输入上补跑 Claude 路径，SDK 结果保留为同模型跨执行路径证据
+- targeted 结果：四组判分硬约束失败均为 0、SNF 误杀均为 0/5；Claude 改写 SF **6/6**，Codex 与 SDK 改写均 5/6（⚠️ 均为 SF-52）；三对对照组全部判对；无 ❌
+- SF-52 结论：Claude 路径全部还原本义并通过，证明第 25 条默认动作可达成；Codex / SDK 的 ⚠️ 属模型执行不彻底，不改预期、不加用例例外
+- 影响面结果：三组判分硬约束失败 0；SF 1/1；SNF 误杀 0/5；无 ⚠️ / ❌。两条 long/in-place 无删句、并句、重排；三条具体经历 SNF 未被装饰性细节规则误杀
+- 硬判：六份输出全部解析完整，长文硬下限失败 0；本轮据 Claude judge 反馈修掉一处报告措辞缺陷（非 in-place 长文一律被称作「bounded 长文」）
+- 归档：`results-v2.3.0.md`
+- 原始输出：`tasks/current/eval-runs/2026-08-07-v2.3.0-targeted/`（未入库）
+
+## v2.3.0 合并阶段 targeted 跨模型验收（2026-08-10 / 2026-08-12）
+
+- 评测集：`benchmark.md` @ v2.3.0 合并版（103 条：57 SF + 46 SNF）；范围 = 合并阶段新增 8 条 + 第一阶段新增 11 条影响面回归
+- 口径：自动化完整性 / residual 标定 / 静态误杀扫描 + 双模型盲改写 + 固定交叉判分；盲测快照不含预期与映射，judge 在改写完成后才读取完整 benchmark 与分层规则
+- 新增 8 条盲测号：B-29 / B-34 / B-57 / B-61 / B-78 / B-81 / B-93 / B-98
+- 影响面 11 条盲测号：B-14 / B-21 / B-45 / B-46 / B-50 / B-51 / B-56 / B-72 / B-86 / B-94 / B-102
+- 冻结指纹：`SKILL.md` = `b407e30a…`；`benchmark-blind.md` = `db35cfd3…`；rewrite prompt = `df611269…`；judge prompt = `1822c7fb…`
+- 被测模型：Codex CLI `gpt-5.6-sol`（reasoning `max`）；Claude Code `--model opus`（effort `max`）
+- judge 模型：Claude 判 Codex 输出；Codex 判 Claude 输出
+- CLI 版本：codex 0.147.0 / claude 2.1.228
+- 自动化结果：`check_repo` 103 用例 / 20 样本 / 24 锚点 / 94 链接 / 3 词表；`py_compile` 与 `git diff --check` 通过
+- 标定结论：`「」/『』` 候选数 SF / SNF 的中位数与 p90 均为 0、max 均为 3，原始计数不可分，不设阈值
+- targeted 结果：两组 judge 的 L1 硬失败均为 0、SNF 误杀均为 0/4、无 `❌`；Codex 输出 SF 2/4 `✅` + 2/4 `⚠️`，Claude 输出 SF 1/4 `✅` + 3/4 `⚠️`
+- 影响面结果：两组 judge 的 L1 硬失败均为 0、SNF 误杀均为 0/5、无 `❌`；Codex 输出 SF 6/6，Claude 输出 SF 5/6 + SF-52 `⚠️`
+- 数字准入线：SNF-45 / SNF-46 两模型整体 no-op，protected spans 分别 4/4、5/5；歧义倍数没有被改成新关系
+- annotation mode：Codex / Claude 均判定新增词条与抒情词规则段属于术语定义 / 被讨论对象，建议改写项 0
+- 发布判断：达到现行门槛；SF-55 两模型均有 L2 残留，作为已知执行弱点记录，不阻塞发布
+- 归档：`results-v2.3.0.md` §9–§10
+- 原始输出：`tasks/current/eval-runs/2026-08-12-v2.4.0-final/`（未入库；目录名保留内部里程碑编号）
+
 ## 登记模板（新一轮实跑照抄填写）
 
 ```markdown
