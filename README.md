@@ -20,7 +20,7 @@
 <p align="center">
   <a href="https://github.com/MrGeDiao/shuorenhua/stargazers"><img src="https://img.shields.io/github/stars/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=stars" alt="GitHub stars"></a>
   <a href="https://github.com/MrGeDiao/shuorenhua/releases"><img src="https://img.shields.io/github/v/release/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=release" alt="GitHub release"></a>
-  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-103%20cases-2563eb?style=for-the-badge" alt="Benchmark: 103 cases"></a>
+  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-111%20cases-2563eb?style=for-the-badge" alt="Benchmark: 111 cases"></a>
   <a href="evals/real-samples.md"><img src="https://img.shields.io/badge/scenario%20samples-20-16a34a?style=for-the-badge" alt="Scenario samples: 20"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/MrGeDiao/shuorenhua?style=for-the-badge" alt="License"></a>
 </p>
@@ -153,7 +153,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 完整流程固定六步：
 
-1. 判场景：`chat / status / docs / public-writing`；命中 README、release note、论坛帖、issue 回复时，再进对应的 Scene Pack
+1. 判场景：`chat / status / docs / public-writing`；命中 README、release note、论坛帖、issue 回复、API reference 或 FAQ 时，再进对应的 Scene Pack
 2. 划保护片段：数字、版本、命令、路径、报错、引用原文、人名和责任归属先锁住，同时记一份事实关系账本——谁对什么做了什么、数字修饰哪个对象（完整清单见 [references/protected-spans.md](references/protected-spans.md)）
 3. 判命中强度（`Tier 1 / 2 / 3`），再分别定改写力度（`minimal / standard / aggressive`）和 scope（`structural / bounded / in-place`）；Tier 只描述问题命中多重，不直接等于力度
 4. 先按模式改，词表只兜底
@@ -191,7 +191,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 ### 按发布目的细分（Scene Packs）
 
-可发布文本再按「发到哪里」细分。这不是换语气，是按发布目的决定改法：README 第一屏要说清这是什么、给谁用；release note 要列清变更、验证和限制；论坛帖像维护者分享观察和取舍，不像公司公告；issue 回复先确认问题和下一步。每个子场景的目标和常见病灶见 [references/scene-packs.md](references/scene-packs.md)。
+可发布文本再按「拿来做什么」细分。这不是换语气，是按发布目的决定改法：README 第一屏要说清这是什么、给谁用；release note 要列清变更、验证和限制；论坛帖像维护者分享观察和取舍，不像公司公告；issue 回复先确认问题和下一步；API reference 保住 endpoint、字段、状态码和调用约束；FAQ 先回答，再给条件、步骤和限制。每个子场景的目标和常见病灶见 [references/scene-packs.md](references/scene-packs.md)。
 
 ### 长文不缩水：三档 scope
 
@@ -203,7 +203,7 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 | `bounded`（长文默认） | 整句空话列成「建议删除（待确认）」清单，删多少你拍板 | `public-writing` 长文 |
 | `in-place` | 一句都不删，只句内降调 | 明确要求「完全原样」 |
 
-三档的取舍过程见 [#4](https://github.com/MrGeDiao/shuorenhua/issues/4)，`structural` 缩水不可控的双模型对照实跑见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md)。后续各版的 scope 回归结果登记在 [evals/run-manifest.md](evals/run-manifest.md)。最近一轮是合并版 v2.3.0 的新增 8 条 + 第一阶段 11 条影响面回归（[evals/results-v2.3.0.md](evals/results-v2.3.0.md) §9）：Codex `gpt-5.6-sol` 与 Claude `opus` 独立盲改写、双向交叉判分，硬约束失败 0、SNF 误杀 0，无 `❌`。SF-55 在两模型上都留有较淡的抽象隐喻，按 L2 风格警告记录，不阻塞发布。
+三档的取舍过程见 [#4](https://github.com/MrGeDiao/shuorenhua/issues/4)，`structural` 缩水不可控的双模型对照实跑见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md)。后续各版的 scope 回归结果登记在 [evals/run-manifest.md](evals/run-manifest.md)。最近一轮 release-ready 结果仍是合并版 v2.3.0 的新增 8 条 + 第一阶段 11 条影响面回归（[evals/results-v2.3.0.md](evals/results-v2.3.0.md) §9）。v2.3.1 候选已扩到 111 条并补 HUMAN 长文对照，但正式全量基线尚不完整，且 Opus 在 B-39 出现 1 个 L1 保真失败；证据与未完成项见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
 
 ### 改完往哪个方向靠
 
@@ -218,14 +218,14 @@ Cursor、OpenClaw 和自建 agent 见[安装](#安装)。
 
 规则层覆盖 210+ 中文短语、96 条英文短语、25 类结构反模式。
 
-当前评测集共 103 条：
+当前评测集共 111 条：
 
 | 类型 | 数量 | 目标 |
 |------|------|------|
-| SF | 57 | 应该改的文本必须命中并改掉主要问题 |
-| SNF | 46 | 不该误杀的文本必须放行或轻提示 |
+| SF | 61 | 应该改的文本必须命中并改掉主要问题 |
+| SNF | 50 | 不该误杀的文本必须放行或轻提示 |
 | 场景样本 | 20 | 整段样本按自然、保真、可直接发三项评分，长文加 `长度节奏` |
-| Scene Packs | 8 | README / release note / forum post / issue reply 的正反样本 |
+| Scene Packs | 16 | README / release note / forum post / issue reply / API reference / FAQ 的正反样本 |
 | Long-form In-place | 4 | 长文保长度场景，检查字数留存、句数对齐和关键转场 |
 | Bounded | 3 | 长文整句空话进删除清单，但不误删实句和节奏句 |
 
@@ -262,7 +262,7 @@ v2.2.0 起，改写输出落盘后先用零依赖硬判脚本 `python3 automatio
 | OpenClaw | [install/openclaw.md](install/openclaw.md) |
 | ChatGPT / Custom GPT | [install/chatgpt.md](install/chatgpt.md) |
 
-核心只需要 `SKILL.md` 一个文件（lite）；长期项目、公开文本和需要误杀防护的场景，建议带上 `references/` 完整包（full）。
+有三档入口：[`dist/shuorenhua-mini.md`](dist/shuorenhua-mini.md) 是 1,500 字符以内的自包含 mini；`SKILL.md` 是 lite；`SKILL.md + references/` 是 full。临时聊天可以用 mini，长期项目、公开文本和需要误杀防护的场景建议用 full。
 
 项目内长期使用时，可以在 `AGENTS.md` 加一段触发规则：
 
@@ -274,7 +274,7 @@ v2.2.0 起，改写输出落盘后先用零依赖硬判脚本 `python3 automatio
 
 ## English
 
-**shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with a 103-case benchmark (blind inputs, dual-model judging, false-positive guards) and a long-form mode that cleans text without shrinking it.
+**shuorenhua (说人话)** is a Chinese-first AI writing humanizer for Codex, Claude Code, Cursor, and ChatGPT. It removes AI-flavored patterns in Chinese text — sycophantic openers, performative engineer-speak, translationese, unsourced authority claims — under a fidelity contract: numbers stay attached to what they measure, relations and attribution never drift, and missing facts are never invented. It ships with a 111-case benchmark, blind inputs, false-positive guards, cross-model evaluation tooling, and a long-form mode that cleans text without shrinking it. The current v2.3.1 candidate is not release-ready; see [the evidence report](evals/results-v2.3.1.md).
 
 Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin install shuorenhua@shuorenhua`. Other agents: `npx skills add MrGeDiao/shuorenhua`. More guides: [install/](install/). Everything else in this repo is written in Chinese.
 

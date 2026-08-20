@@ -1,5 +1,35 @@
 # Changelog
 
+## [Unreleased] — v2.3.1 候选（未达到发布门槛）
+
+### Added
+
+- 新增 1,500 字符以内的自包含 `dist/shuorenhua-mini.md`，并把安装口径统一为 mini / lite / full 三档。
+- 新增 API reference、FAQ 等 Scene Packs；benchmark 扩到 **111 条（61 SF + 50 SNF）**，盲测输入、映射、批次和计数锚点同步。
+- 新增 8 篇 HUMAN 长文 residual 对照：5 篇现代公开文本、3 篇历史原作，其中 2 篇明确标为英译中。逐篇保留固定 revision、归属、CC BY 2.5 / CC BY-SA 4.0、固定版权政策证据、抽取说明和 AI 来源依据；正文及其改编不适用根目录 MIT。
+
+### Changed
+
+- `hard_metrics.py` 增加 HUMAN manifest、长度/句数/SHA256、目录双向对账、许可/许可证据、固定 revision/UTC 时间、AI 依据、作者组/时代/原始语言分层与分布报告；历史/现代各至少 3 篇，翻译稿不超过三分之一。场景代表性只统计 direct，proxy 只作 report-only 假阳性参照，不进 benchmark 分母。
+- 保真回读改为按子句/事实要素建账并做双向核对，显式保护范围、条件、否定、情态、完成态、方向和强度；避免清理整行姿态时顺带删条件，也避免把“潜力/可能”补成已实现关系。
+- 新增固定 MediaWiki wikitext 抽取器与单测，避免旧 revision 在渲染时混入当前模板内容。
+- `check_repo.py` 增加 HUMAN 发布检查和 plugin / marketplace 元数据结构、版本一致性检查。
+
+### Tested
+
+- `python3 automation/check_repo.py`：结构计数为 **111 用例 / 20 样本 / HUMAN 8 篇 / 24 锚点 / 98 链接 / 3 词表**；预期退出 1，HUMAN direct 场景仍缺 `docs` 和 `status`，发布代表性门禁未通过。
+- HUMAN：8 篇均达到 1,000 汉字 / 12 句门槛；3 篇历史 + 5 篇现代，6 篇中文原作 + 2 篇英译中，7 个作者组。句长 CV 与连词密度按总体、场景、长度桶输出；小样本没有稳定同场景分离证据，不设新阈值。
+- L1 修复侧测：先冻结 14 条非近邻 held-out，再由 first-party Opus 5 与 Grok 4.6 独立执行，28/28 无 L1；纯姿态 4/4 被清理，no-op 4/4 放行。两个历史失败题的 targeted 复跑为 4/4 保真通过，但不覆盖旧全量失败，也不替代完整新全量基线。
+- targeted：Opus mini 6/6；Scene Pack 7 通过 / 1 个 L2 警告 / 0 L1，新增 SNF 误杀 0/4。DeepSeek Scene Pack 同为 7/1/0；B-26 的“没有先直接回答”在多模型上复现，保留为 L2。
+- 全量：Opus 与 DeepSeek 改写均 111/111。Opus judge 对 DeepSeek 已 111/111：SF L2 44/58，SNF 误杀 1/50；DeepSeek judge 对 Opus 为 96/111。
+
+### Release blockers
+
+- Opus B-39 / SF-27 删除 fallback 适用条件“高峰期流量”；DeepSeek B-95 / SF-07 把“展示 cloud-native architecture 的潜力”改成已基于该架构构建。两条均独立复核为模型执行导致的 L1，不是 judge 误判或规格歧义。
+- 上述两类失真已有通用修复、跨模型 held-out 和 targeted 通过证据；正式候选仍需完整新全量运行，不能用 targeted 追分把旧失败抹掉。
+- DeepSeek judge 对 Opus 仍缺 B-97–111；原 Cindy Host / Orca Worker 通道当前不可调，Claude CLI 直接请求该模型返回 404，未用其他模型代替。按 L1=0 门槛，本候选 **NOT release-ready**；plugin / marketplace 版本继续保持 2.3.0。
+- 当前只提交到开发分支保存候选实现；后续补充 Claude 完整审核并关闭上述门禁后才会正式 release。
+
 ## [2.3.0] - 2026-08-14 — 篇章级病灶 + 项目规则优先级 + 抒情词与量化保真
 
 > 原规划的 v2.3.0 与 v2.4.0 合并为一个对外版本 v2.3.0。
