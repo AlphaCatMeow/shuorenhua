@@ -124,7 +124,7 @@ r4 的新失败全部落在 DeepSeek 执行侧，Opus 同用例全过，属模�
 
 ## 8. 仓库门禁状态
 
-- `python3 automation/check_repo.py`：blind 111 条检查通过；预期退出 1，HUMAN direct 场景缺 `docs`、`status`（维护者 2026-08-21 决定随版发布，记为已知缺口）。
+- `python3 automation/check_repo.py`：blind 111 条检查通过；HUMAN direct 场景缺 `docs`、`status`，报为已知缺口（known-gap，不阻塞退出码；维护者 2026-08-21 决定随版发布，收齐 12 篇后关闭门禁）。
 - `python3 automation/eval/hard_metrics.py --human-stats evals/human-corpus.jsonl`：OK。
 - `python3 automation/eval/hard_metrics.py --calibrate`：61 SF / 50 SNF / 8 HUMAN，OK；没有新增阈值。
 - 22 条单测、Python 编译、blind 同步、链接与 diff 门禁见最终工作区验证记录。

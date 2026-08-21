@@ -138,7 +138,7 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进�
 
 ## v2.3.1 状态
 
-v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 全量 Opus 侧硬约束失败 0、SNF 误杀 0/50、SF 通过 57/61，达发布门槛。DeepSeek V4 Pro 撤出正式席位（B-74 真实 L1 + 同条件复跑存在 run-to-run 方差）；Grok 4.6 换席补跑的改写与硬判干净，判分仅闭环 1/7 批，记为辅助证据，第二正式席位补跑留给后续版本。HUMAN direct 样本仍缺 `docs` 和 `status`，`python3 automation/check_repo.py` 预期退出 1，随版如实发布、继续收集。完整证据与口径见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
+v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 全量 Opus 侧硬约束失败 0、SNF 误杀 0/50、SF 通过 57/61，达发布门槛。DeepSeek V4 Pro 撤出正式席位（B-74 真实 L1 + 同条件复跑存在 run-to-run 方差）；Grok 4.6 换席补跑的改写与硬判干净，判分仅闭环 1/7 批，记为辅助证据，第二正式席位补跑留给后续版本。HUMAN direct 样本仍缺 `docs` 和 `status`，`check_repo` 把它报为已知缺口（不阻塞 CI），收齐 12 篇后关闭。完整证据与口径见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
 
 本版改动：
 

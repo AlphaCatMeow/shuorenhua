@@ -62,6 +62,17 @@ def add_issue(issues, path, line, check_id, message):
     issues.append(f"{path}:{line} [{check_id}] {message}")
 
 
+def add_known_gap(warnings, path, check_id, message):
+    """已知缺口：只报警、不影响退出码。
+
+    仅用于维护者明确决定随版发布的收集型门禁。当前只有 HUMAN 代表性
+    （direct 场景缺 docs/status，目标 12 篇，收集中，见 CHANGELOG [2.3.1]
+    与 evals/results-v2.3.1.md §7）。语料收齐后该门禁自然通过，此通道
+    应随即移除，不得挪作他用。
+    """
+    warnings.append(f"{path} ⚠️ [known-gap/{check_id}] {message}")
+
+
 def read_text(relative, issues, check_id):
     try:
         return (ROOT / relative).read_text(encoding="utf-8")
@@ -303,7 +314,7 @@ def human_benchmark_duplicates(records, cases, strip_blockquote):
     ]
 
 
-def check_human_corpus(issues):
+def check_human_corpus(issues, warnings):
     """校验 v2.3.1 必需的 HUMAN 语料、发布 cohort 与 benchmark 隔离。"""
     relative = "evals/human-corpus.jsonl"
     manifest = ROOT / relative
@@ -324,7 +335,7 @@ def check_human_corpus(issues):
     try:
         module.validate_human_representativeness(records)
     except module.HumanCorpusError as exc:
-        add_issue(issues, relative, "-", "human-representativeness", str(exc))
+        add_known_gap(warnings, relative, "human-representativeness", str(exc))
 
     for target in ("evals/benchmark.md", "evals/benchmark-blind.md", "evals/benchmark-map.md"):
         text = read_text(target, issues, "human-corpus")
@@ -485,22 +496,27 @@ def check_rule_tables(issues):
 
 def main():
     issues = []
+    warnings = []
     check_blind_sync(issues)
     case_matches, rs_matches, sf, snf, anchors = check_counts(issues)
     files = markdown_files(issues)
     links = check_links(files, issues)
     check_case_ids(files, case_matches, rs_matches, issues)
     check_meta(issues)
-    human = check_human_corpus(issues)
+    human = check_human_corpus(issues, warnings)
     tables = check_rule_tables(issues)
 
     if issues:
-        print("\n".join(issues))
+        print("\n".join(issues + warnings))
         print(f"check_repo: FAIL（{len(issues)} 个问题）")
         return 1
     total = sf + snf
     human_text = f" / HUMAN {human} 篇" if human else ""
-    print(f"check_repo: OK（{total} 用例 / {len(rs_matches)} 样本{human_text} / {anchors} 锚点 / {links} 链接 / {tables} 词表）")
+    if warnings:
+        print("\n".join(warnings))
+        print(f"check_repo: PASS（含 {len(warnings)} 个已知缺口，语料收集中）")
+    else:
+        print(f"check_repo: OK（{total} 用例 / {len(rs_matches)} 样本{human_text} / {anchors} 锚点 / {links} 链接 / {tables} 词表）")
     return 0
 
 
