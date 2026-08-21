@@ -1,7 +1,11 @@
-# v2.3.1 候选验收归档
+# v2.3.1 全量基线结果
 
-> 日期：2026-08-19 / 2026-08-20
-> 状态：**NOT release-ready**。仓库静态门禁与 HUMAN 标定已完成，两个改写席位均已 111/111；双向 judge 仍缺 DeepSeek 对 Opus B-97–111 一批，而已有证据已发现 2 个 L1 保真失败。
+> 归档日期：2026-08-21（r4 主基线 2026-08-20，r5 换席补跑 2026-08-21）。规则快照：`0e3796a`（SKILL.md `b24a76ef`、rewrite-prompt `f956b92f`）。完整运行证据在 `tasks/current/eval-runs/2026-08-20-v2.3.1-full-r4/` 与 `tasks/current/eval-runs/2026-08-21-v2.3.1-full-r5-grok/`（gitignored 工作区）。
+> 状态：**release-ready（Opus 单席位口径，维护者 2026-08-21 决定）**。r4 Opus 侧达门槛（硬约束失败 0、SNF 误杀 0/50、SF 57/61）；DeepSeek 撤出正式席位（B-74 真实 L1 + run-to-run 方差）；Grok 4.6 换席补跑完成改写与硬判、判分因评测通道不稳定仅闭环 1/7 批，按维护者收敛决定不重试，记为辅助证据。
+>
+> 复核修正（一）：原判分表中 B-57 的硬约束 ❌ 与 SNF 误杀 ❌ 不成立，已降为 L0 回显不完整。依据见 `tasks/current/eval-runs/2026-08-20-v2.3.1-full-r4/judges/opus-judge-deepseek/REVIEW-B57-correction.md`（脚本对 B-57/B-58/B-62 分类同为 `noop=true, noop_unverified=false`，同一判官豁免两条、判死一条；且 B-57 判定链显式满足 judge-prompt 的 no-op 校验分支）。下表保留判官原始计分，修正值单列。
+>
+> 复核修正（二）：B-15（SNF-34）所依据的 `references/structures.md` §20 存在计数单位自相矛盾（命中信号按破折号符号数、保留条件按插入语组数），两个独立模型各自按不同子句判定得出相反结论。该缺陷已在本版修复；B-15 从「DeepSeek 单方规则应用缺陷」改判为「规则缺陷导致的判定分歧」。撤席决策不受影响（依据是 B-74 与 run-to-run 方差，均独立于 B-15）。详见 `tasks/current/FINDING-structures-20-counting-unit.md`。
 
 ## 1. 本版范围
 
@@ -10,121 +14,144 @@
 - benchmark 从 103 条扩到 111 条：61 SF + 50 SNF；blind、map 与 7 批范围同步。
 - 增加 HUMAN 长文 residual 对照和严格 manifest 校验；这组数据不进入 rewrite、judge 或 benchmark 分母。
 - 加固 plugin / marketplace 元数据结构与版本一致性检查。
+- 保真规则强化（`0e3796a`）：事实/关系账本按子句/事实要素判断（不整句整行一刀切），输出前双向核对（输入→输出逐项可追溯，输出→输入回指依据）。
+- 修复 `references/structures.md` §20 计数单位缺陷（见顶部复核修正二）。
 
-## 2. 冻结输入与正式席位
+## 2. 冻结输入与席位决定
 
 | 输入 | SHA256 |
 |------|--------|
-| `SKILL.md` | `1b4632060b91a647867c46270b9a71df0511bf0128cde28bce70be084d9d8b62` |
+| `SKILL.md` | `b24a76ef95bae3e1bd7cdb3a2b5b9be4c7fd5b1bf1eb9ecf1cded8e87bde5dac` |
 | `references/scene-packs.md` | `dcda3b11b03193b0de2537f452bed9c3e330b99c533b995db59da302f4fbfe74` |
 | `evals/benchmark-blind.md` | `79dedd4247e0df8a292a883a282e1d80214e0f6cc829a5855348b6a7e063acdd` |
-| `automation/eval/rewrite-prompt.md` | `2d076186242b30a6a53c56559ea0a8a296985fdb7a6641643de5a49aa17ee0c2` |
+| `automation/eval/rewrite-prompt.md` | `f956b92f4d2fbf90a20ea623264824d46f7b71ecfd10e288f280f6a217f03f9d` |
 
-正式被测席位按维护者后续决定为：
+席位（维护者 2026-08-20 / 08-21 决定）：
 
-- Claude Code CLI 2.1.237，first-party `claude-opus-5`，`--model opus --effort high`。
-- DeepSeek V4 Pro；Cindy Host 实际路由与计费元数据只含 `deepseek-v4-pro[1m]`。
-
-Codex 5.6 Sol 因额度耗尽记“未参与”，没有用其他 Codex 模型替代。
+- **Claude Opus 5：正式席位，达门槛**。Cindy Orca worker 通道（本机 claude CLI 未登录，维护者 2026-08-20 批准）；Host 完成消息路由回执 `claude-opus-5[1m]`，仅此一个模型。
+- **DeepSeek V4 Pro：撤出正式席位，r4 成绩原样保留为辅助证据**。依据：B-74 真实 L1（与规则缺陷无关）+ 同条件复跑存在真实 run-to-run 方差（见 §9）。
+- **Grok 4.6：第二席位补跑（r5），证据部分**。改写与硬判完整，判分仅 1/7 批闭环（见 §5）。
+- Codex 5.6 Sol 因额度耗尽记“未参与”，没有用其他 Codex 模型替代。
 
 ## 3. targeted 结果
 
 Opus mini 6/6 通过；Scene Pack 7 通过、1 个 L2 警告、0 L1，新增 SNF 误杀 0/4。DeepSeek Scene Pack 同为 7 通过、1 个 L2 警告、0 L1。
 
-共同警告是 B-26 / SF-61：两模型都删除了无源的绝对安全保证，保留升级顺序、硬限制和 `2 小时` 待确认，但正文没有先直接回答“现有材料无法证明一定不会丢数据”。这是 FAQ 信息顺序的 L2 执行弱点，不是事实漂移，不改门槛。
+共同警告是 B-26 / SF-61：两模型都删除了无源的绝对安全保证，保留升级顺序、硬限制和 `2 小时` 待确认，但正文没有先直接回答“现有材料无法证明一定不会丢数据”。这是 FAQ 信息顺序的 L2 执行弱点，不是事实漂移。r4 全量中 Opus 已改为 audit-only 风险说明（L2 消除），DeepSeek 仍保留该 L2 警告。
 
-Grok targeted 也出现同型 B-26 警告；其输出带额外过程前言，按 L0 格式偏差只作辅助证据，不计正式全量席位。
+## 4. 正式全量基线（r4，新规则）
 
-## 4. 正式全量基线状态
+两模型各 7 批、111/111 完成；双向 judge 14/14 批全部闭环。长文硬下限失败 0。
 
-| 链路 | 改写完整性 | judge 完整性 | 已知结果 |
-|------|------------|----------------|----------|
-| Opus rewrite → DeepSeek judge | 111/111 | 96/111 | L1 失败 1：B-39 / SF-27；缺 B-97–111 judge |
-| DeepSeek rewrite → Opus judge | 111/111 | 111/111 | L1 失败 1：B-95 / SF-07；SF L2 44/58；SNF 误杀 1/50 |
+### Opus judge → DeepSeek（判 DeepSeek 输出）
 
-Opus B-97–111 先后两次在请求入口收到 429，失败原件保留在 gitignored 运行目录。维护者随后说明订阅已登录；`auth status` 仍给出下列假阴性：
+| 批次 | SF 通过 | ⚠️ | ❌ 风格 | 硬约束 ❌ | SNF 误杀 |
+|---|---|---:|---:|---:|---:|
+| B-01–16 | 6/7 | B-16 | — | — | 1/9（B-15） |
+| B-17–32 | 8/11 | B-19、B-25、B-26 | — | — | 0/5 |
+| B-33–48 | 8/13 | B-35、B-38、B-39、B-47 | B-33 | — | 0/3 |
+| B-49–64 | 4/5 | B-56 | — | B-57 | 1/11（B-57） |
+| B-65–80 | 8/10 | B-70、B-75 | — | B-74 | 0/6 |
+| B-81–96 | 7/7 | — | — | — | 0/9 |
+| B-97–111 | 7/8 | B-106 | — | — | 0/7 |
+| **合计** | **48/61** | **12** | **1** | **2** | **2/50** |
 
-- 时间：`2026-08-20T17:51:30+08:00`
-- 命令：`/Users/zhangqi/.local/bin/claude auth status`
-- CLI：`2.1.237 (Claude Code)`
-- 退出码：1
-- stdout：`loggedIn=false / authMethod=none / apiProvider=firstParty`
-- binary SHA256：`338901351d4ff17495738c67fc3e12a32c1b506738ac5e012eb782d3d8b5be43`
+### DeepSeek judge → Opus（判 Opus 输出）
 
-不再把该命令当作可用性门禁：同一 CLI 的实际 first-party Opus 探针成功，随后 B-97–111 改写和 7 个全新 judge 会话均 `rc=0`，`modelUsage` 唯一 key 为 `claude-opus-5`，`canonicalModel=claude-opus-5`、`provider=firstParty`、无 web search。未重跑已成功的改写批次。
+| 批次 | SF 通过 | ⚠️ | ❌ 风格 | 硬约束 ❌ | SNF 误杀 |
+|---|---|---:|---:|---:|---:|
+| B-01–16 | 7/7 | — | — | — | 0/9 |
+| B-17–32 | 10/11 | B-19 | — | — | 0/5 |
+| B-33–48 | 12/13 | B-38 | — | — | 0/3 |
+| B-49–64 | 4/5 | B-56 | — | — | 0/11 |
+| B-65–80 | 9/10 | B-66 | — | — | 0/6 |
+| B-81–96 | 7/7 | — | — | — | 0/9 |
+| B-97–111 | 8/8 | — | — | — | 0/7 |
+| **合计** | **57/61** | **4** | **0** | **0** | **0/50** |
 
-DeepSeek 对 Opus 的最后一批 judge 未补成。原路径是 Cindy Host / Orca Worker，不是 Claude Pro 订阅自带模型；当前可调的 Claude CLI 显式请求 `deepseek-v4-pro` 返回 404 `unrecognized_model`。因此未用 Opus 或其他模型代替 DeepSeek 身份。
+## 5. r5 换席补跑（Grok 4.6，辅助证据）
 
-## 5. 两个 L1 独立复核
+DeepSeek 撤席后，第二席位改由 Grok 4.6（provider=xai，Host 回执 `xai/grok-4.6`，单模型无 fallback）补跑。冻结输入与 r4 完全相同；Opus 改写直接复用 r4，不重跑。运行合同见 `tasks/current/eval-runs/2026-08-21-v2.3.1-full-r5-grok/run-contract.md`。
 
-### B-39 / SF-27（Opus 改写）
+**已完成且可信的部分**：
 
-结论：**Opus 5 模型执行失败；DeepSeek judge 判定正确；无规格歧义；无基础设施致因。**
+- 改写 7/7 批、111/111 条，无缺号；L0 干净（各批直接以 `## B-xx` 起手，未复现 held-out 中的前言问题）。
+- `hard_metrics.py --run`：长文硬下限失败 0、目标下警告 0；保护片段报警仅 1 条（B-77 的 `40%`，系规则允许的整条删除所致）；对照 Opus r4 报警 0 条、DeepSeek r4 报警 17 条。
+- 归档保真：经 auto-bridge 转达的批次做过中文弯引号被渲染成直角引号的校正，逐批与本地 DB 原文比对，记录在各批 `host/*.json`。
 
-- blind 输入明确包含“通过系统性治理稳稳兜住高峰期流量”。
-- 映射明确为 SF-27；预期逐字要求删除姿态词，但保留“高峰期流量”这一 fallback 适用条件。
-- 冻结规则把 code-context 的真实运行行为、适用条件和边界列为 protected spans。
-- Opus 自己把整行判断为“纯姿态层”，结果删除“高峰期流量”。raw JSON 与归一化 Markdown 的正文逐字一致。
-- 该批 rc=0、stderr 为空、`is_error=false`、`terminal_reason=completed`，`modelUsage` 只有 `claude-opus-5`。唯一权限拒绝是阻止读取 live repo，随后正常读取冻结副本并完整产出 16 条。
-- hard metrics 的 7/7 只覆盖数字、日期、反引号等字面 token；语义条件本来就交给 judge，因此不与 L1 判定冲突。
+**未完成的部分（如实记录）**：
 
-现行门槛要求 L1=0。不得把这条降成 L2、删除用例或只重跑失败项追分。
+- Opus judge → Grok 的 7 批中仅 B-65–80 批闭环：硬约束失败 0、SNF 误杀 0/6、SF 风格通过 7/10（⚠️ 3：B-66 首句改写越界、B-69 下一步动作不完整、B-70 骨架处理不完整）。该批判分表在 `judges/opus-judge-grok/judge-B65-80.md`。
+- 其余 6 批 judge 因评测通道不稳定（7 个 Opus worker 并发时 6 个异常终止，重派一轮再次终止）未产出；Grok judge → Opus 的 7 批未启动。维护者 2026-08-21 决定收敛，不再重试。
+- 因此 Grok 不作为发布门槛席位，本批结果只作辅助证据引用；后续版本如需第二正式席位，须完整重跑双向 judge。
 
-### B-95 / SF-07（DeepSeek 改写）
+## 6. 发布判断
 
-结论：**DeepSeek V4 Pro 模型执行失败；Opus 5 judge 判定正确；无规格歧义。**
+按维护者 2026-08-21 收敛决定，v2.3.1 以 **Opus 单席位口径**收口：
 
-- 原文只说试验“展示 cloud-native architecture 的潜力”，这是可能性，不是实施状态。
-- 改写变成 `The platform is built on cloud-native architecture`，新增了“平台已基于该架构构建”的关系。
-- benchmark 明确禁止新增实施关系；Opus judge 将其判为 hard failure。主线在 judge 前已独立标记同一风险，结论相互独立且一致。
+- **Opus 5：达门槛**。硬约束失败 0；SNF 误杀 0/50；SF 通过 57/61，余 4 条均为 L2 警告。
+- **DeepSeek V4 Pro：撤席**（主线程复核后口径）：
+  - B-74（SF-08）：改写把「一个目标」替换成「这个产品」，指代对象漂移。benchmark 预期逐字写明「不能把『一个目标』改成『一个产品』或其他对象」，判定成立，**真实 L1**。
+  - B-15（SNF-34）：**改判为规则缺陷导致的判定分歧**（见顶部复核修正二）。规则修复后该动作定性为 SNF 误杀（预期逐字写明「机械替换算误杀」），判定结论不变，归因从模型缺陷改为规则文本缺陷。
+  - B-33（SF-38）：只删后半句，主病灶词「掰扯清楚」原样保留，**真实 SF ❌**。
+  - B-57（SNF-49）：**判定不成立，已撤销**，降为 L0 回显不完整（见顶部复核说明）。
+  - 修正后合计：硬约束失败 **1**、SNF 误杀 **1/50**、SF ❌ **1**；另有同条件复跑 run-to-run 方差（见 §9）。
+- **HUMAN 代表性门禁**：direct 场景仍缺 docs/status（`check_repo` 唯一 FAIL）。维护者决定如实记录、随版发布，继续日常收集，收齐后关闭门禁。
+- **mini 6 条**：Opus 侧 r3 6/6 有效沿用；DeepSeek 侧 3/6 格式失败随撤席不再补跑。
 
-Opus judge 对 DeepSeek 全 111 条的机械汇总为：L1 `1`；SF L2 `44/58 = 75.9%`（三条 L3 不进分母）；SNF 误杀 `1/50 = 2.0%`，低于 `<10%` 门槛。但 L1 门槛已经失败。
+### 旧 L1 的修复验证（r3 → r4）
 
-## 6. HUMAN 长文对照与许可
+旧规则 r3 全量的两条 L1 均已被新规则修复，r4 两模型通过：
 
-本轮 HUMAN 调整为 8 篇分层公开文本：3 篇现代中文公开年度/报道回顾、2 篇现代英译中公开采访、3 篇历史中文原作。正文从 2018–2021 年的固定 MediaWiki revision wikitext 机械抽取，避免旧页面渲染时混入当前模板；manifest 保留原作者/贡献者、固定来源与日期、CC BY / CC BY-SA 4.0、逐篇许可证据、抽取说明、原始语言和 AI 依据。正文及其改编不适用根目录 MIT。
+- B-39（SF-27）：`fallback` 适用条件「高峰期流量」两模型均保留（旧：Opus 删除致 L1）。
+- B-95（SF-07）：两模型均保留 "potential" 抽象层级，未写成平台基于 cloud-native architecture 构建（旧：DeepSeek 新增已实施关系致 L1）。
 
-代表性边界：这批语料覆盖 7 个作者组、3 个功能场景、3 篇历史 + 5 篇现代、6 篇中文原作 + 2 篇英译中。`status` 仍只是公开年度/报道回顾的功能近似，不等同于内部团队周报；`public-writing` 两篇都是翻译采访；仍缺真实团队聊天、内部周报和现代原创中文技术文档。它是分层 residual 切片，不代表现代中文职场写作，也不能单独支撑“人味”阈值。
+L1 泛化侧测（held-out H-01–14 两模型 14/14 + 历史失败题 X-01/X-02 2/2）与全量结果一致。
 
-| ID | 作品 | 作者组 | 场景 | 汉字 | 句数 |
-|----|------|--------|------|-----:|-----:|
-| HUMAN-01 | 維基新聞2020年台灣大事回顧 | Wikinews Taiwan review | status | 3,510 | 67 |
-| HUMAN-02 | 維基新聞2020年香港大事回顧 | Wikinews Hong Kong review | status | 1,856 | 51 |
-| HUMAN-03 | 維基新聞2020年原創報道回顧 | Wikinews original reporters | status | 6,149 | 121 |
-| HUMAN-04 | 維基新聞採訪比爾·漢蒙斯 | William S. Saturn / Kit Wong | public-writing / translated | 2,485 | 61 |
-| HUMAN-05 | 維基新聞採訪喬·喬根森 | William S. Saturn / contributors | public-writing / translated | 3,030 | 98 |
-| HUMAN-06 | 上李鴻章書 | 孫中山 | docs / historical | 6,819 | 254 |
-| HUMAN-07 | 文學改良芻議 | 胡適 | docs / historical | 5,055 | 246 |
-| HUMAN-08 | 我之節烈觀 | 魯迅 | docs / historical | 4,809 | 210 |
+r4 的新失败全部落在 DeepSeek 执行侧，Opus 同用例全过，属模型执行漂移而非规则缺口（held-out 已覆盖对应病灶类型）。
 
-总体分布：句长 CV `n=8 / min=0.43 / median=0.52 / p90=0.61 / max=0.61`；连词密度 `n=8 / min=0.00 / median=1.20 / p90=5.22 / max=8.94`。按场景和长度桶的原始值由 `--human-stats` 完整输出。
+### §20 规则修复的基线影响
 
-HUMAN、SF、SNF 在同场景没有稳定分离证据；尤其各场景 HUMAN 只有 2–3 篇。因此保留 report-only，不设产品阈值。
+修复方向是「按插入处计数」。Opus r4 对 B-15 的实际行为（放行、按组数判定）在修复前后同为正确，**r4 Opus 侧全量基线不受影响，无需重跑**。偏离行为只出现在非门槛席位（DeepSeek 已撤席、Grok 辅助证据），修复后其 B-15 替换动作归档口径改为 SNF 误杀，不影响发布判定。SNF-34 的 benchmark 预期与修复后规则一致，SF 侧标点腔用例（SF-43 等）在按组计数下仍命中，预期均不变。
 
-### 两项 L1 的失败后修复验证
+## 7. HUMAN 长文对照与许可
 
-旧的 B-39 / B-95 正式证据继续记为 L1 失败。本轮先冻结 14 条 task-local held-out，覆盖条件删除、关系补强、情态/完成态、纯姿态、no-op、普通黑话和主体归属；冻结后才把保真账本改为按子句/事实要素判断，并增加输入→输出、输出→输入双向回读。
+本轮 HUMAN 为 8 篇分层公开文本：3 篇现代中文公开年度/报道回顾、2 篇现代英译中公开采访、3 篇历史中文原作。正文从固定 MediaWiki revision wikitext 机械抽取；manifest 保留原作者/贡献者、固定来源与日期、CC BY / CC BY-SA 4.0、逐篇许可证据、抽取说明、原始语言和 AI 依据。正文及其改编不适用根目录 MIT。
 
-- first-party `claude-opus-5`：H-01–14 全部符合预期，L1 `0/14`；模型 JSON 为 success/completed/end_turn，provider=`firstParty`。
-- `grok-4.6-build`：H-01–14 全部符合预期，L1 `0/14`；Santi verifier 确认选择模型 `grok-4.6`、runtime `grok-4.6-build`、fingerprint `fp_08d0bc26c22b024e`。输出前有过程前言，记 L0 格式偏差，不影响内容判定。
-- 历史题 targeted：两模型均保留 B-39 的“高峰期流量”以及 B-95 的 `potential/can` 未实现关系，内容 `4/4` 通过。
+代表性边界：覆盖 7 个作者组、3 个功能场景、3 篇历史 + 5 篇现代、6 篇中文原作 + 2 篇英译中；`representation_role=direct` 仅 public-writing 2 篇，docs/status 的 direct 代表性不足（代表性门禁未过，维护者决定随版发布并继续收集）。它是分层 residual 切片，不代表现代中文职场写作，也不能单独支撑“人味”阈值。
 
-这组证据只说明修复方向能泛化且覆盖已知题；它不替换旧全量失败，也不能代替完整新全量基线。因此本文件顶部的 **NOT release-ready** 结论不变。
+总体分布：句长 CV `n=8 / min=0.43 / median=0.52 / p90=0.61 / max=0.61`；连词密度 `n=8 / min=0.00 / median=1.20 / p90=5.22 / max=8.94`。HUMAN、SF、SNF 在同场景没有稳定分离证据（各场景 HUMAN 仅 2–3 篇），保留 report-only，不设产品阈值。目标 12 篇，继续收集中。
 
-## 7. 仓库门禁状态
+## 8. 仓库门禁状态
 
-- `python3 automation/check_repo.py`：结构计数为 111 用例 / 20 样本 / HUMAN 8 篇 / 24 锚点 / 98 链接 / 3 词表；预期退出 1，HUMAN direct 场景缺 `docs`、`status`。
+- `python3 automation/check_repo.py`：blind 111 条检查通过；预期退出 1，HUMAN direct 场景缺 `docs`、`status`（维护者 2026-08-21 决定随版发布，记为已知缺口）。
 - `python3 automation/eval/hard_metrics.py --human-stats evals/human-corpus.jsonl`：OK。
-- `python3 automation/eval/hard_metrics.py --human-stats evals/human-corpus.jsonl --report-json`：OK。
 - `python3 automation/eval/hard_metrics.py --calibrate`：61 SF / 50 SNF / 8 HUMAN，OK；没有新增阈值。
-- HUMAN validator 单测、Python 编译、blind 同步、链接与 diff 门禁见最终工作区验证记录。
+- 22 条单测、Python 编译、blind 同步、链接与 diff 门禁见最终工作区验证记录。
 
-## 8. 发布判断
+## 9. 漂移说明与已知限制
 
-v2.3.1 候选不满足 release-ready：
+- 硬判 protected spans 粗核报警均经 judge 复核：no-op 声明式写法（写「保留原文」未逐字回显）所致，非内容漂移；B-62 的破折号过密信号源于多段合并回显的格式问题。
+- mini 6 条（`dist/shuorenhua-mini.md` `83f917c4` 未变）：Opus 侧 r3 6/6 有效沿用；DeepSeek 侧 r3 有 3/6 格式合同失败（只写「保留原文」未逐字交付），随撤席不再补跑。
+- 本机 claude CLI 未登录，Opus 席位经 Cindy worker 通道运行；Host 回执 `claude-opus-5[1m]` 为等价第一方路由证据，费用为参考价估算（合计约 ¥125）；DeepSeek 侧实际计费合计约 ¥80；Grok r5 改写 7 批为 Host 估算口径（value-estimate），不可与 DeepSeek 的 actual-cost 混同。
+- r5 判分通道不稳定（Opus judge worker 并发异常终止）为 Cindy Orca 基础设施问题，与 skill 规则无关；记录在 r5 `run-state.md`，供后续版本评测时规避（小并发或单批串行）。
 
-1. 两个改写席位各有 1 个 L1（Opus B-39、DeepSeek B-95），违反 L1=0 的预先冻结门槛。
-2. DeepSeek judge 对 Opus 的 B-97–111 未完成；当前会话无 Cindy Host / Orca Worker 调用通道，直接 Claude CLI 不识别该模型。
-3. HUMAN 现有 8 篇满足 residual cohort 合同，但 direct 场景只有 public-writing，发布代表性门禁仍缺 docs/status。
+## 10. DeepSeek 撤席依据（受控诊断）
 
-因此不写 2.3.1 发布标签，不 bump plugin / marketplace 版本，不宣称双向 judge 已全部闭环。当前对外 release-ready 版本仍是 2.3.0；后续补充 Claude 完整审核并关闭上述门禁后才会正式 release。
+受控诊断（`tasks/current/eval-runs/2026-08-20-v2.3.1-ds-capability-probe/`，两次同条件独立复跑，不进正式分母）：
+
+- B-15 / SNF-34：3/3 失败。**归因更正**：r4 那次的理由（「两处破折号承接插入」）不是自造，是 §20 命中信号的字面读法（见复核修正二）；该条改判为规则缺陷导致的判定分歧，已在本版修复规则。修复后 DeepSeek 的动作仍属误杀，但不再单独归为模型能力缺陷。
+- B-33 / SF-38：2/3 失败，其中一次输出内部自相矛盾（同一份命中项里先判「删姿态层」再判「保留，是正常口语」）。
+- B-74 / SF-08：1/3 失败，两次复跑均保住三要素。
+- **同条件两次运行输出不同** ⇒ 该模型在本 benchmark 上存在真实 run-to-run 方差，单次全量结果不可复现。对要求 L1=0 的正式基线，这比任何单条失败更关键，也是撤席的主要依据（独立于 B-15）。
+
+另注：r4 两模型推理预算差 3.7 倍（Opus 16.54M token vs DeepSeek 4.47M）；诊断显示负载可能是影响因素之一，但不能解释同负载下的方差。Opus 同用例全过。
+
+## 11. 结论
+
+v2.3.1 **release-ready（Opus 单席位口径）**，版本号 2.3.1：
+
+1. 新规则修复旧两条 L1（B-39、B-95 两模型均通过），并修复 §20 计数单位缺陷；规则修复方向经 held-out 与全量双重验证。
+2. 发布门槛席位为 Claude Opus 5：硬约束失败 0、SNF 误杀 0/50、SF 57/61（余 4 条 L2 警告）。Grok r5 改写与硬判干净、1/7 批判分零失败，作为辅助证据记录；第二正式席位的完整补跑留给后续版本。
+3. HUMAN direct 代表性缺口（docs/status）如实记录随版发布，继续收集。
+4. 双模型门槛的完整重走不再作为本版阻塞项（维护者 2026-08-21 收敛决定）。
