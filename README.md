@@ -29,9 +29,9 @@
   <a href="#常见问题">FAQ</a>
 </p>
 
-`说人话` 是一套中文优先的 rewrite skill，给经常用 AI 起草中文的开发者、维护者和写作者用。它处理聊天、技术同步、README、release note、论坛帖、issue 回复和中文长文里的模板感、表演感、工程师腔、翻译腔与无源权威铺垫。
+`说人话` 是一个中文优先的 rewrite skill，清理聊天、进度同步、README、release note、论坛帖、issue 回复和中文长文里的模板感、表演感、工程师腔、翻译腔和无源权威铺垫。给经常用 AI 起草中文的开发者、维护者和写作者用。
 
-改语气之前，它会先保护数字、版本、命令、路径、责任归属和原文已有的事实关系。Codex、Claude Code、Cursor、ChatGPT 和自建 agent 都能接入。
+改语气之前先保护事实：数字、版本、命令、路径、责任归属和原文已有的关系不动。Codex、Claude Code、Cursor、ChatGPT 和自建 agent 都能接入。
 
 ## 30 秒上手
 
@@ -81,26 +81,19 @@ npx skills add MrGeDiao/shuorenhua
 
 ## 保真合同
 
-去 AI 味最麻烦的翻车，是句子顺了，事实却变了。这里把不能动的部分写成可检查的规则：
+去 AI 味最常翻车的地方：句子顺了，事实变了。这里把不能动的部分写成可检查的规则：
 
-- **数字和对象一起保留**：`p95 从 480ms 降到 160ms` 不能概括成「明显降低」。
-- **关系不改写**：`展示了云原生架构的潜力` 不能变成 `采用了云原生架构`；潜力不等于已经实现。
-- **范围和条件不丢**：适用范围、例外、否定、情态、完成态、方向和强度都属于事实。
-- **抽象信息不擅自具体化**：原文只说「提升效率」，不能补成「省时间」或「降成本」。
-- **缺信息就指出缺口**：原文没给数字、来源、工具名或实现关系，改写也不补。`docs / status` 里的无源结论默认按 `audit-only` 处理。
+- 数字和它修饰的对象一起保留：`p95 从 480ms 降到 160ms` 不能概括成「明显降低」。
+- 关系不改写：`展示了云原生架构的潜力` 不能变成 `采用了云原生架构`，潜力不等于已经实现。
+- 范围、条件、否定、情态、完成态、方向和强度都算事实，不随姿态一起删。
+- 抽象信息不擅自具体化：原文只说「提升效率」，不能补成「省时间」或「降成本」。
+- 缺信息就指出缺口，不补。`docs / status` 里的无源结论默认按 `audit-only` 处理。
 
-回读分两向：先检查输入里的事实能否在输出逐项找回，再检查输出里的每个新关系能否回指输入依据。规则细节见 [references/protected-spans.md](references/protected-spans.md) 和 [references/positive-style.md](references/positive-style.md)。
+回读走两个方向：输入里的事实能否在输出逐项找回；输出里的每个新关系能否回指输入依据。规则细节见 [references/protected-spans.md](references/protected-spans.md) 和 [references/positive-style.md](references/positive-style.md)。
 
 ## 怎么判断怎么改
 
-`说人话` 不靠词语替换表硬洗全文。处理顺序固定：
-
-1. 判断主场景：`chat / status / docs / public-writing`
-2. 标出数字、版本、命令、引用、责任主体和事实关系
-3. 判断问题命中强度（`Tier 1 / 2 / 3`）、改写力度和 scope
-4. 先处理句式与段落模式，短语表只兜底
-5. 做保真回读
-6. 仍有残留 AI 味时，再做一次轻量 Residual Audit
+不靠词语替换表硬洗全文。处理顺序固定：判主场景（`chat / status / docs / public-writing`）→ 划出数字、版本、命令、引用、责任主体和事实关系 → 判命中强度（`Tier 1 / 2 / 3`）和改写力度 → 先处理句式与段落模式，短语表只兜底 → 保真回读 → 仍有残留再做一次轻量 Residual Audit。
 
 常见处理如下：
 
@@ -145,20 +138,15 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进�
 
 ## v2.3.1 状态
 
-v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 全量中 Opus 侧硬约束失败 0、SNF 误杀 0/50、SF 通过 57/61，达发布门槛。完整证据与口径见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
+v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 全量 Opus 侧硬约束失败 0、SNF 误杀 0/50、SF 通过 57/61，达发布门槛。DeepSeek V4 Pro 撤出正式席位（B-74 真实 L1 + 同条件复跑存在 run-to-run 方差）；Grok 4.6 换席补跑的改写与硬判干净，判分仅闭环 1/7 批，记为辅助证据，第二正式席位补跑留给后续版本。HUMAN direct 样本仍缺 `docs` 和 `status`，`python3 automation/check_repo.py` 预期退出 1，随版如实发布、继续收集。完整证据与口径见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
 
 本版改动：
 
-- 增加 [`dist/shuorenhua-mini.md`](dist/shuorenhua-mini.md)，形成 mini / lite / full 三档入口
-- Scene Packs 增加 API reference 和 FAQ，benchmark 从 103 条扩到 111 条（61 SF + 50 SNF）
-- 保真回读增加按子句与事实要素建账，并做双向核对
-- 增加 8 篇 HUMAN 长文 residual 对照和相应的来源、许可、固定 revision 与 manifest 校验
-- 修复 `references/structures.md` §20 破折号密度判据的计数单位矛盾（按插入处计数）
-
-已知缺口（随版如实发布）：
-
-- DeepSeek V4 Pro 撤出正式席位：B-74 真实 L1（指代对象漂移）+ 同条件复跑存在 run-to-run 方差；Grok 4.6 换席补跑的改写与硬判干净，判分因评测通道不稳定仅闭环 1/7 批，记为辅助证据。第二正式席位的完整补跑留给后续版本。
-- HUMAN direct 样本还缺 `docs` 和 `status`，`python3 automation/check_repo.py` 预期退出 1，继续收集，收齐后关闭门禁。
+- 新增 [`dist/shuorenhua-mini.md`](dist/shuorenhua-mini.md)（1,500 字符以内、自包含），安装口径统一为 mini / lite / full 三档
+- Scene Packs 增加 API reference 和 FAQ；benchmark 从 103 条扩到 111 条（61 SF + 50 SNF）
+- 保真回读改为按子句与事实要素建账，输出前做双向核对
+- 新增 8 篇 HUMAN 长文 residual 对照，含固定 revision、归属、许可证据和 manifest 校验
+- 修复 `references/structures.md` §20 破折号密度判据的计数单位矛盾，统一按插入处计数
 
 ## 评测
 
