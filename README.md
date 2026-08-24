@@ -93,7 +93,7 @@ npx skills add MrGeDiao/shuorenhua
 
 ## 怎么判断怎么改
 
-不靠词语替换表硬洗全文。处理顺序固定：判主场景（`chat / status / docs / public-writing`）→ 划出数字、版本、命令、引用、责任主体和事实关系 → 判命中强度（`Tier 1 / 2 / 3`）和改写力度 → 先处理句式与段落模式，短语表只兜底 → 保真回读 → 仍有残留再做一次轻量 Residual Audit。
+处理顺序固定：判主场景（`chat / status / docs / public-writing`）→ 划出数字、版本、命令、引用、责任主体和事实关系 → 判命中强度（`Tier 1 / 2 / 3`）和改写力度 → 先处理句式与段落模式，短语表只兜底 → 保真回读 → 仍有残留再做一次轻量 Residual Audit。
 
 常见处理如下：
 
@@ -124,25 +124,25 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进�
 
 细则和正反例见 [references/scene-packs.md](references/scene-packs.md)。
 
-### 长文不缩水：三档 scope
+### 长文不缩水：用 scope 控制删改力度
 
-长文里有些重复和转场看着不够利落，却承担节奏。scope 单独决定能删到什么程度：
+长文里有些重复和转场看着不够利落，却承担节奏。`scope` 单独决定能删到什么程度，取下面三个值之一，跟着改写指令一起给：
 
 | scope | 删整句吗 | 适用 |
 |-------|----------|------|
 | `structural` | 可以删、并、重排 | 短文，或明确要求重写 |
 | `bounded`（长文默认） | 整句空话进「建议删除（待确认）」清单 | `public-writing` 长文 |
-| `in-place` | 不删整句，只做句内降调 | 明确要求保留原文结构和节奏 |
+| `in-place` | 不删整句，只把句子里的话说平 | 明确要求保留原文结构和节奏 |
 
-三档的取舍过程见 [issue #4](https://github.com/MrGeDiao/shuorenhua/issues/4)，实跑记录见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md) 和 [evals/run-manifest.md](evals/run-manifest.md)。
+这三个值的取舍过程见 [issue #4](https://github.com/MrGeDiao/shuorenhua/issues/4)，实跑记录见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md) 和 [evals/run-manifest.md](evals/run-manifest.md)。
 
 ## v2.3.1 状态
 
-v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 全量 Opus 侧硬约束失败 0、SNF 误杀 0/50、SF 通过 57/61，达发布门槛。DeepSeek V4 Pro 撤出正式席位（B-74 真实 L1 + 同条件复跑存在 run-to-run 方差）；Grok 4.6 换席补跑的改写与硬判干净，判分仅闭环 1/7 批，记为辅助证据，第二正式席位补跑留给后续版本。HUMAN direct 样本仍缺 `docs` 和 `status`，`check_repo` 把它报为已知缺口（不阻塞 CI），收齐 12 篇后关闭。完整证据与口径见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
+v2.3.1 只用 Opus 一个模型跑完了发布评测（2026-08-21 决定）：r4 全量里硬约束失败 0 次，不该改的 50 条一条没误改，该改的 61 条过了 57 条，达到发布线。原本要跑第二个模型做对照：DeepSeek V4 Pro 出了一次真实 L1（B-74），同条件复跑结果还不稳，撤掉了；换 Grok 4.6 补跑，改写和硬判都干净，但判分只跑完 7 批里的 1 批，只能算参考。第二个模型的对照留到后面的版本补。另外人类长文样本还差 `docs` 和 `status` 两类，`check_repo` 把这一项报为已知缺口，不卡 CI，凑够 12 篇再关掉。完整证据和判定标准见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
 
 本版改动：
 
-- 新增 [`dist/shuorenhua-mini.md`](dist/shuorenhua-mini.md)（1,500 字符以内、自包含），安装口径统一为 mini / lite / full 三档
+- 新增 [`dist/shuorenhua-mini.md`](dist/shuorenhua-mini.md)（1,500 字符以内、自包含），安装方式统一成 mini / lite / full 三种
 - Scene Packs 增加 API reference 和 FAQ；benchmark 从 103 条扩到 111 条（61 SF + 50 SNF）
 - 保真回读改为按子句与事实要素建账，输出前做双向核对
 - 新增 8 篇 HUMAN 长文 residual 对照，含固定 revision、归属、许可证据和 manifest 校验
@@ -175,7 +175,7 @@ v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 
 
 被测模型只看匿名、乱序、不含预期答案的 [evals/benchmark-blind.md](evals/benchmark-blind.md)，judge 再按映射表判分。运行模型、评测集版本和结果登记在 [evals/run-manifest.md](evals/run-manifest.md)。零依赖脚本 `python3 automation/eval/hard_metrics.py --run <批次目录>/` 负责字数留存、破折号密度和 protected spans 粗核，细节见 [automation/eval/README.md](automation/eval/README.md)。
 
-最新 release-ready 证据是 [v2.3.1 的评测记录](evals/results-v2.3.1.md)（Opus 单席位口径）。
+最新一版可发布的评测证据是 [v2.3.1 的评测记录](evals/results-v2.3.1.md)（只用 Opus 一个模型跑的）。
 
 ## 安装
 
@@ -187,7 +187,7 @@ v2.3.1 以 **Opus 单席位**口径收口（维护者 2026-08-21 决定）：r4 
 | OpenClaw | [install/openclaw.md](install/openclaw.md) |
 | ChatGPT / Custom GPT | [install/chatgpt.md](install/chatgpt.md) |
 
-三档入口按使用场景选：
+按使用场景选入口：
 
 | 入口 | 内容 | 适用 |
 |------|------|------|
