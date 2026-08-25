@@ -22,7 +22,7 @@
 <p align="center">
   <a href="#30-秒上手">30 秒上手</a> ·
   <a href="#先看一眼效果">效果</a> ·
-  <a href="#保真合同">保真合同</a> ·
+  <a href="#保真哪些不能改">保真</a> ·
   <a href="#怎么判断怎么改">怎么改</a> ·
   <a href="#评测">评测</a> ·
   <a href="#安装">安装</a> ·
@@ -79,7 +79,7 @@ npx skills add MrGeDiao/shuorenhua
 
 该删的是渲染词，不是证据。这条对应评测集里的硬约束用例 [SF-46](evals/benchmark.md)。更多对照见 [references/examples.md](references/examples.md) 和 [evals/real-samples.md](evals/real-samples.md)。
 
-## 保真合同
+## 保真：哪些不能改
 
 去 AI 味最常翻车的地方：句子顺了，事实变了。这里把不能动的部分写成可检查的规则：
 
@@ -132,13 +132,13 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进�
 |-------|----------|------|
 | `structural` | 可以删、并、重排 | 短文，或明确要求重写 |
 | `bounded`（长文默认） | 整句空话进「建议删除（待确认）」清单 | `public-writing` 长文 |
-| `in-place` | 不删整句，只把句子里的话说平 | 明确要求保留原文结构和节奏 |
+| `in-place` | 不删整句，只在句子内部改词、压语气 | 明确要求保留原文结构和节奏 |
 
 这三个值的取舍过程见 [issue #4](https://github.com/MrGeDiao/shuorenhua/issues/4)，实跑记录见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md) 和 [evals/run-manifest.md](evals/run-manifest.md)。
 
 ## v2.3.1 状态
 
-v2.3.1 只用 Opus 一个模型跑完了发布评测（2026-08-21 决定）：r4 全量里硬约束失败 0 次，不该改的 50 条一条没误改，该改的 61 条过了 57 条，达到发布线。原本要跑第二个模型做对照：DeepSeek V4 Pro 出了一次真实 L1（B-74），同条件复跑结果还不稳，撤掉了；换 Grok 4.6 补跑，改写和硬判都干净，但判分只跑完 7 批里的 1 批，只能算参考。第二个模型的对照留到后面的版本补。另外人类长文样本还差 `docs` 和 `status` 两类，`check_repo` 把这一项报为已知缺口，不卡 CI，凑够 12 篇再关掉。完整证据和判定标准见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
+v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定的）：r4 全量里硬约束失败 0 次，不该改的 50 条一条没误改，该改的 61 条过了 57 条，达到发布线。原本要跑第二个模型做对照：DeepSeek V4 Pro 出了一次真实 L1（B-74），同条件复跑两次结果都不一样，单次全量结果不可复现，撤掉了；换 Grok 4.6 补跑，改写和硬判都干净，但判分只跑完 7 批里的 1 批，只能算参考。第二个模型的对照留到后面的版本补。另外人类长文样本还差 `docs` 和 `status` 两类，`check_repo` 把这一项报为已知缺口，不卡 CI，凑够 12 篇再关掉。完整证据和判定标准见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
 
 本版改动：
 
