@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/MrGeDiao/shuorenhua/stargazers"><img src="https://img.shields.io/github/stars/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=stars" alt="GitHub stars"></a>
   <a href="https://github.com/MrGeDiao/shuorenhua/releases"><img src="https://img.shields.io/github/v/release/MrGeDiao/shuorenhua?style=for-the-badge&amp;label=release" alt="GitHub release"></a>
-  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-111%20cases-2563eb?style=for-the-badge" alt="Benchmark: 111 cases"></a>
+  <a href="evals/benchmark.md"><img src="https://img.shields.io/badge/benchmark-120%20cases-2563eb?style=for-the-badge" alt="Benchmark: 120 cases"></a>
   <a href="evals/real-samples.md"><img src="https://img.shields.io/badge/scenario%20samples-20-16a34a?style=for-the-badge" alt="Scenario samples: 20"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/MrGeDiao/shuorenhua?style=for-the-badge" alt="License"></a>
 </p>
@@ -29,13 +29,13 @@
   <a href="#常见问题">FAQ</a>
 </p>
 
-`说人话` 是一个中文优先的 rewrite skill，清理聊天、进度同步、README、release note、论坛帖、issue 回复和中文长文里的模板感、表演感、工程师腔、翻译腔和无源权威铺垫。给经常用 AI 起草中文的开发者、维护者和写作者用。
+`说人话` 是一个中文优先的 rewrite skill，用来清理聊天、进度同步、README、release note、论坛帖、issue 回复和中文长文里的模板感、表演感、工程师腔、翻译腔和无源权威铺垫。给经常拿 AI 起草中文的开发者、维护者和写作者用。
 
-改语气之前先保护事实：数字、版本、命令、路径、责任归属和原文已有的关系不动。Codex、Claude Code、Cursor、ChatGPT 和自建 agent 都能接入。
+改语气之前先锁事实：数字、版本、命令、路径、责任归属和原文里已有的关系不动。Codex、Claude Code、Cursor、ChatGPT 和自建 agent 都能接入。
 
 ## 30 秒上手
 
-**先试效果，不安装** — 打开[说人话 GPT](https://chatgpt.com/g/g-6a5829b1163481919e1e45851f6bc709-shuo-ren-hua)（ChatGPT，需 Plus / Pro），贴一段文本就能用。
+**先试效果，不装东西** — 打开[说人话 GPT](https://chatgpt.com/g/g-6a5829b1163481919e1e45851f6bc709-shuo-ren-hua)（ChatGPT，需 Plus / Pro），贴一段文本就能用。
 
 **Claude Code** — 在对话里运行：
 
@@ -59,7 +59,7 @@ codex exec -C . "读取 ./SKILL.md，按其中规则改写以下文本：……"
 npx skills add MrGeDiao/shuorenhua
 ```
 
-只想看问题、不想直接改稿，就加一句「按 annotation mode 只标注不改写」。Cursor、OpenClaw、自建 agent 和更多安装方式见[安装](#安装)。
+只想看问题、不想直接改稿，加一句「按 annotation mode 只标注不改写」。Cursor、OpenClaw、自建 agent 和更多安装方式见[安装](#安装)。
 
 ## 先看一眼效果
 
@@ -71,7 +71,7 @@ npx skills add MrGeDiao/shuorenhua
 
 > 这次优化明显降低了接口延迟。
 
-第二版看着短了，`p95`、`480ms` 和 `160ms` 也没了。
+短了，但 `p95`、`480ms` 和 `160ms` 也丢了。
 
 **按说人话规则改**
 
@@ -81,7 +81,7 @@ npx skills add MrGeDiao/shuorenhua
 
 ## 保真：哪些不能改
 
-去 AI 味最常翻车的地方：句子顺了，事实变了。这里把不能动的部分写成可检查的规则：
+去 AI 味最常翻车的地方：句子顺了，事实变了。下面把不能动的部分列成可检查的规则：
 
 - 数字和它修饰的对象一起保留：`p95 从 480ms 降到 160ms` 不能概括成「明显降低」。
 - 关系不改写：`展示了云原生架构的潜力` 不能变成 `采用了云原生架构`，潜力不等于已经实现。
@@ -89,29 +89,29 @@ npx skills add MrGeDiao/shuorenhua
 - 抽象信息不擅自具体化：原文只说「提升效率」，不能补成「省时间」或「降成本」。
 - 缺信息就指出缺口，不补。`docs / status` 里的无源结论默认按 `audit-only` 处理。
 
-回读走两个方向：输入里的事实能否在输出逐项找回；输出里的每个新关系能否回指输入依据。规则细节见 [references/protected-spans.md](references/protected-spans.md) 和 [references/positive-style.md](references/positive-style.md)。
+回读走两个方向：输入里的事实能否在输出逐项找回；输出里每个新关系能否回指输入依据。规则细节见 [references/protected-spans.md](references/protected-spans.md) 和 [references/positive-style.md](references/positive-style.md)。
 
 ## 怎么判断怎么改
 
 处理顺序固定：判主场景（`chat / status / docs / public-writing`）→ 划出数字、版本、命令、引用、责任主体和事实关系 → 判命中强度（`Tier 1 / 2 / 3`）和改写力度 → 先处理句式与段落模式，短语表只兜底 → 保真回读 → 仍有残留再做一次轻量 Residual Audit。
 
-常见处理如下：
+常见处理：
 
 | 识别信号 | 默认动作 | 例 |
 |------|------|------|
-| 开场套话、总结提示 | 删掉提示层，直接回答 | `好问题！让我来解释` → 直接说答案 |
+| 开场套话、总结提示 | 删提示层，直接回答 | `好问题！让我来解释` → 直接说答案 |
 | 商业黑话、价值拔高 | 还原成普通动作；没有信息就删 | `赋能开发者` → 说清具体帮了什么 |
 | 工程师姿态腔 | 按宾语判断，换回实际动作 | `把结论落盘` → `把结论写进文档` |
-| 过度承接、心理判断 | 删掉发奖状和替人下结论 | `你不是敏感，你只是……` → 回应具体内容 |
+| 过度承接、心理判断 | 删发奖状和替人下结论的部分 | `你不是敏感，你只是……` → 回应具体内容 |
 | 翻译腔、句子过满 | 缩短主语和动作，保留术语 | `基于……通过……来……` → 直接说动作 |
 | 名词化、同义词躲避 | 换回动词，同一对象保持同一叫法 | `进行了优化` → `改了` |
-| 无源权威 | `chat / public-writing` 删除不能独立成立的论断；`docs / status` 标缺来源 | 不把裸 `40%` 留成事实 |
+| 无源权威 | `chat / public-writing` 删不能独立成立的论断；`docs / status` 标缺来源 | 不把裸 `40%` 留成事实 |
 
 完整边界在 [references/](references/)，用例在 [evals/benchmark.md](evals/benchmark.md)。
 
 ### 按文本用途分场景
 
-README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进入各自的 Scene Pack：
+README、release note、论坛帖、issue 回复、API reference 和 FAQ 各有对应的 Scene Pack：
 
 | Scene Pack | 处理重点 |
 |------------|----------|
@@ -120,13 +120,13 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进�
 | forum post | 保留维护者的经历、判断和社区语气 |
 | issue reply | 先说能否复现、当前判断和下一步 |
 | API reference | 保护 endpoint、method、字段、状态码、约束和恢复动作 |
-| FAQ | 先回答，再写条件、步骤和限制；不扩大承诺 |
+| FAQ | 尽早回答；执行前条件和警告不后移，保留步骤、分支和限制，不扩大承诺 |
 
 细则和正反例见 [references/scene-packs.md](references/scene-packs.md)。
 
 ### 长文不缩水：用 scope 控制删改力度
 
-长文里有些重复和转场看着不够利落，却承担节奏。`scope` 单独决定能删到什么程度，取下面三个值之一，跟着改写指令一起给：
+长文里有些重复和转场看着不利落，却承担节奏。`scope` 单独决定能删到什么程度，取三个值之一，跟改写指令一起给：
 
 | scope | 删整句吗 | 适用 |
 |-------|----------|------|
@@ -134,7 +134,17 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 会进�
 | `bounded`（长文默认） | 整句空话进「建议删除（待确认）」清单 | `public-writing` 长文 |
 | `in-place` | 不删整句，只在句子内部改词、压语气 | 明确要求保留原文结构和节奏 |
 
-这三个值的取舍过程见 [issue #4](https://github.com/MrGeDiao/shuorenhua/issues/4)，实跑记录见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md) 和 [evals/run-manifest.md](evals/run-manifest.md)。
+三个值的取舍过程见 [issue #4](https://github.com/MrGeDiao/shuorenhua/issues/4)，实跑记录见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md) 和 [evals/run-manifest.md](evals/run-manifest.md)。
+
+## v2.4 状态
+
+v2.4.0 是收缩版。原本的候选把七类改动打包在一起，跑了 13 轮 remediation、54 次外部调用，没有通过任何一轮完整验收，2026-08-29 决定只保留直接回应 [#5](https://github.com/MrGeDiao/shuorenhua/issues/5) 的两条规则改动，其余移出留给 v2.5。留下的两条是：技术报告术语改为按词在句子里的具体含义放行，不再因为文本是 README 或发布说明就把周围的包装表达一起放行；FAQ 的「尽早给结论」不得把原有执行前条件和警告挪到操作之后。配套改了 `SKILL.md` 的 No-touch 一节、`phrases-zh.md` 的 `闭环` 词条和 `protected-spans.md` 的两类保护划分，规则改动一共 20 行左右。
+
+验收范围是受影响面 34 条，不是全量 120 条——本版新增 9 条，加上收紧后误杀风险最高的 12 条、FAQ 既有题 4 条、`闭环`/`收口` 波及的 7 条和数值保护题 2 条。Claude Opus 5 与 Grok 4.6 两个席位各自改写，判分用的是逐条静态复核，不是模型交叉判分。
+
+两个席位的硬约束失败都是 0。不该改的 23 条里，Claude 一条没误伤，Grok 误伤 1 条（SNF-28，v2.3.1 就有，不是这版引入）；本版新增的 7 条 SNF 两边都是零误杀。三处失败点完全互补，没有一条是两个模型同时栽的。SF-62 是 #5 的原始素材，Claude 跑了两次：第一次漏清了「判分仅闭环」，第二次同一份输入下两处包装都清掉了，属执行波动而不是稳定失败。
+
+门槛 1（硬约束失败为 0）和门槛 2（误杀率）都达成。门槛 3 要求新增用例双模型达标，Grok 通过，Claude 一次通过一次漏清，最终判定留给维护者。SF-07、SF-39、SF-16、SF-37 这四条已知问题本版没有碰，不在修复范围内。完整证据和判定标准见 [evals/results-v2.4.0.md](evals/results-v2.4.0.md)。
 
 ## v2.3.1 状态
 
@@ -152,17 +162,17 @@ v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定�
 
 规则层覆盖 210+ 条中文短语、96 条英文短语和 25 类结构反模式。
 
-当前评测集共 111 条：
+当前评测集共 120 条：
 
 | 类型 | 数量 | 目标 |
 |------|------|------|
-| SF | 61 | 应该改的文本要命中并处理主要问题 |
-| SNF | 50 | 本来正常的文本应放行或只做轻提示 |
+| SF | 63 | 应该改的文本要命中并处理主要问题 |
+| SNF | 57 | 本来正常的文本应放行或只做轻提示 |
 | 场景样本 | 20 | 整段样本按自然、保真、可直接发评分，长文另看长度节奏 |
 
-这几个数字的关系：111 条是主 benchmark；20 条场景样本是另一套整段评测，不和 111 相加。主 benchmark 里包含 16 条 Scene Pack 正反用例、4 条 Long-form In-place 和 3 条 Bounded 用例。
+120 条是主 benchmark，20 条场景样本是单独的整段评测，两者不相加。主 benchmark 含 21 条 Scene Pack 正反用例、4 条 Long-form In-place 和 3 条 Bounded 用例。
 
-另有 8 篇 HUMAN 长文 residual 对照：3 篇历史文本、5 篇现代公开文本，6 篇中文原作、2 篇英译中，共 7 个作者组。它们只用于观察假阳性，不进入 benchmark、rewrite 或 judge 分母，也不据此设置「人味」阈值。语料正文及改编沿用各自许可，不适用仓库根目录的 MIT。
+另有 8 篇 HUMAN 长文 residual 对照，用于观察假阳性：3 篇历史文本、5 篇现代公开文本，6 篇中文原作、2 篇英译中，共 7 个作者组。不进入 benchmark、rewrite 或 judge 分母，不据此设「人味」阈值。语料正文及改编沿用各自许可，不适用仓库根目录的 MIT。
 
 发布门槛从 v2.1.0 起分四层：
 
@@ -173,9 +183,9 @@ v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定�
 | L2 风格目标 | 明显套路有没有清干净 | 各模型单独报告趋势 |
 | L3 风格观察 | 合格编辑可能合理分歧的写法 | 否，只记录 |
 
-被测模型只看匿名、乱序、不含预期答案的 [evals/benchmark-blind.md](evals/benchmark-blind.md)，judge 再按映射表判分。运行模型、评测集版本和结果登记在 [evals/run-manifest.md](evals/run-manifest.md)。零依赖脚本 `python3 automation/eval/hard_metrics.py --run <批次目录>/` 负责字数留存、破折号密度和 protected spans 粗核，细节见 [automation/eval/README.md](automation/eval/README.md)。
+被测模型只看匿名、乱序、不含预期答案的 [evals/benchmark-blind.md](evals/benchmark-blind.md)，judge 按映射表判分。运行模型、评测集版本和结果登记在 [evals/run-manifest.md](evals/run-manifest.md)。零依赖脚本 `python3 automation/eval/hard_metrics.py --run <批次目录>/` 负责字数留存、破折号密度和 protected spans 粗核，细节见 [automation/eval/README.md](automation/eval/README.md)。
 
-最新一版可发布的评测证据是 [v2.3.1 的评测记录](evals/results-v2.3.1.md)（只用 Opus 一个模型跑的）。
+最新可发布的评测记录：[v2.4.0](evals/results-v2.4.0.md)（受影响面 34 条，Claude Opus 5 与 Grok 4.6 两个席位）。上一版的全量基线见 [v2.3.1](evals/results-v2.3.1.md)（Opus 单模型）。
 
 ## 安装
 
@@ -187,7 +197,7 @@ v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定�
 | OpenClaw | [install/openclaw.md](install/openclaw.md) |
 | ChatGPT / Custom GPT | [install/chatgpt.md](install/chatgpt.md) |
 
-按使用场景选入口：
+按场景选入口：
 
 | 入口 | 内容 | 适用 |
 |------|------|------|
@@ -195,9 +205,9 @@ v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定�
 | lite | `SKILL.md` | 临时改写和轻量审稿 |
 | full | `SKILL.md + references/` | 长期项目、公开文本、技术文档和误杀防护 |
 
-Claude Code plugin 自带 full。其他平台的复制方式、软链更新和触发配置见上面的安装文档。
+Claude Code plugin 自带 full，其他平台的复制、软链和触发配置见上面各安装文档。
 
-项目内长期使用时，可以在 `AGENTS.md` 加一段触发规则：
+长期在项目内使用，可以在 `AGENTS.md` 加触发规则：
 
 ```markdown
 ## 写作风格
@@ -207,7 +217,7 @@ Claude Code plugin 自带 full。其他平台的复制方式、软链更新和�
 
 ## English
 
-**shuorenhua (说人话)** is a Chinese-first rewrite skill for Codex, Claude Code, Cursor, ChatGPT, and custom agents. It removes common AI writing patterns in Chinese while protecting numbers, commands, attribution, conditions, and factual relations. The repo includes a 111-case benchmark, false-positive guards, scene-specific rules, and long-form scopes. The latest release is `v2.3.1`.
+**shuorenhua (说人话)** is a Chinese-first rewrite skill for Codex, Claude Code, Cursor, ChatGPT, and custom agents. It removes common AI writing patterns in Chinese while protecting numbers, commands, attribution, conditions, and factual relations. The repo includes a 120-case benchmark, false-positive guards, scene-specific rules, and long-form scopes. The latest release is `v2.4.0`.
 
 Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin install shuorenhua@shuorenhua`. Other agents: `npx skills add MrGeDiao/shuorenhua`. More guides: [install/](install/).
 
@@ -221,23 +231,23 @@ Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin instal
 
 ### 英文能不能用？
 
-可以，但项目以中文为主。英文规则主要处理常见英文套话和中英混写里的模板感。
+能用，但项目以中文为主。英文规则主要处理常见英文套话和中英混写里的模板感。
 
 ### 为什么改完有时还是有 AI 味？
 
-清掉通用套路，不等于写出某个具体作者的个人风格。这个项目目前不做长期 voice 拟合。
+清掉通用套路不等于写出某个作者的风格。项目目前不做长期 voice 拟合。
 
 ### 会不会改坏技术文档？
 
-`docs`、`status` 和 `code-context` 采用更保守的规则，命令、路径、版本、报错和指标优先保护。评测无法覆盖所有文本；遇到误杀，请提交脱敏后的 bad case。
+`docs`、`status` 和 `code-context` 用更保守的规则，命令、路径、版本、报错和指标优先保护。评测无法覆盖所有文本，遇到误杀请提交脱敏后的 bad case。
 
 ## 贡献：bad case 比 star 有用
 
-欢迎提交新的评测样本、边界案例、改写前后对照和误杀案例。
+欢迎提交评测样本、边界案例、改写对照和误杀记录。
 
-可以使用 [bad case 模板](.github/ISSUE_TEMPLATE/bad-case.md)，也可以贴到[征集 issue](https://github.com/MrGeDiao/shuorenhua/issues/5)。提交前请脱敏，不要附上未授权私聊全文、密钥、内部链接或真实个人身份信息。
+用 [bad case 模板](.github/ISSUE_TEMPLATE/bad-case.md)，或贴到[征集 issue](https://github.com/MrGeDiao/shuorenhua/issues/5)。提交前请脱敏，不要带未授权私聊全文、密钥、内部链接或个人身份信息。
 
-加新词之前，先判断它是新模式，还是现有模式的另一种说法。贡献规则见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+加新词之前，先判断它是新模式还是现有模式的另一种说法。贡献规则见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 相关项目
 
@@ -253,3 +263,4 @@ Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin instal
 ## 许可
 
 [MIT](LICENSE)
+)
