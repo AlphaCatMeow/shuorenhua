@@ -149,7 +149,7 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 各有�
 
 120 条是主 benchmark，20 条场景样本是单独的整段评测，两者不相加。主 benchmark 含 21 条 Scene Pack 正反用例、4 条 Long-form In-place 和 3 条 Bounded 用例。
 
-另有 8 篇 HUMAN 长文 residual 对照，用于观察假阳性：3 篇历史文本、5 篇现代公开文本，6 篇中文原作、2 篇英译中，共 7 个作者组。不进入 benchmark、rewrite 或 judge 分母，不据此设「人味」阈值。语料正文及改编沿用各自许可，不适用仓库根目录的 MIT。
+另有 10 篇 HUMAN 长文 residual 对照，用于观察假阳性：3 篇历史文本、7 篇现代公开文本，8 篇中文原作、2 篇英译中，共 9 个作者组。不进入 benchmark、rewrite 或 judge 分母，不据此设「人味」阈值。语料正文及改编沿用各自许可，不适用仓库根目录的 MIT。
 
 ### 当前版本
 
@@ -162,7 +162,7 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 各有�
 
 `v2.4.0` 检查了受影响的 34 条用例，不是全量 120 条。Claude Opus 5 和 Grok 4.6 的硬约束失败都是 0；新增的 7 条 SNF 没有误杀。已知问题照常列出：Grok 误改了 `SNF-28`（`v2.3.1` 已存在），Claude 对 `SF-62` 的两次结果不一致；`SF-07`、`SF-39`、`SF-16`、`SF-37` 不在这版的修复范围内。硬约束和误杀率达到门槛，新增用例的双模型结果仍留给维护者判定。
 
-最新的全量基线是 [`v2.3.1`](evals/results-v2.3.1.md)：Claude Opus 完成了发布评测，硬约束失败 0 次，50 条 SNF 零误改，61 条 SF 通过 57 条。第二个模型没有跑出可用的全量对照，所以这份基线仍然只代表 Opus。HUMAN 长文样本还缺 `docs` 和 `status` 两类，`check_repo` 仍把它报为已知缺口。
+最新的全量基线是 [`v2.3.1`](evals/results-v2.3.1.md)：Claude Opus 完成了发布评测，硬约束失败 0 次，50 条 SNF 零误改，61 条 SF 通过 57 条。第二个模型没有跑出可用的全量对照，所以这份基线仍然只代表 Opus。HUMAN 长文后来补入直接用于写作参考的技术文档和项目进展报告，`docs`、`public-writing`、`status` 三类 direct 场景现已通过代表性检查。
 
 ### 发布门槛
 

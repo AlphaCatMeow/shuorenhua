@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- HUMAN 长文 residual 对照新增 2 篇固定 revision 的中文原作：一篇技术文档写作规范（Public Domain），一篇开源项目进展报告（CC BY-SA 4.0）。两篇都只做机械抽取，不作生成式改写。
+- HUMAN cohort 增至 10 篇、9 个作者组；其中历史文本 3 篇、现代公开文本 7 篇，中文原作 8 篇、英译中 2 篇。direct 场景现覆盖 `docs`、`public-writing`、`status`。
+
+### Changed
+
+- HUMAN 代表性门禁恢复为普通阻塞检查，移除 v2.4.0 为收集期临时保留的 `known-gap` 放行通道。
+
+### Verification status
+
+- `hard_metrics.py --human-stats`：10 篇全部通过 manifest、正文哈希、许可、年代、语言、作者组和 direct 场景检查。
+- `check_repo.py`：120 条用例、20 个场景样本、10 篇 HUMAN、24 个锚点、93 个链接和 3 组词表全部通过。
+
 ## [2.4.0] - 2026-08-29 — 技术术语按词义放行、FAQ 条件顺序
 
 > 发布口径：本版是**收缩版**。原候选把七类改动打包，13 轮 remediation、54 次外部调用未通过任何一轮完整验收；2026-08-29 收缩为只保留直接回应 #5 的两条规则改动，其余移出留给 v2.5。验收范围是**受影响面 34 条，不是全量 120 条**，判分方式是逐条静态复核而非模型交叉判分。门槛 1、2 达成；**门槛 3（新增用例双模型达标）待维护者判定**——Grok 通过，Claude 两次运行中一次通过、一次漏清 SF-62 的一处包装。完整证据见 `evals/results-v2.4.0.md`。
