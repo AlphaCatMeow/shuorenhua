@@ -21,8 +21,7 @@
 
 <p align="center">
   <a href="#30-秒上手">30 秒上手</a> ·
-  <a href="#先看一眼效果">效果</a> ·
-  <a href="#保真哪些不能改">保真</a> ·
+  <a href="#效果和保真">效果和保真</a> ·
   <a href="#怎么判断怎么改">怎么改</a> ·
   <a href="#评测">评测</a> ·
   <a href="#安装">安装</a> ·
@@ -35,33 +34,33 @@
 
 ## 30 秒上手
 
-**先试效果，不装东西** — 打开[说人话 GPT](https://chatgpt.com/g/g-6a5829b1163481919e1e45851f6bc709-shuo-ren-hua)（ChatGPT，需 Plus / Pro），贴一段文本就能用。
+- **不安装，先试效果**：打开[说人话 GPT](https://chatgpt.com/g/g-6a5829b1163481919e1e45851f6bc709-shuo-ren-hua)（ChatGPT，需 Plus / Pro），贴一段文本就能用。
 
-**Claude Code** — 在对话里运行：
+- **Claude Code**：在对话里运行：
 
-```text
-/plugin marketplace add MrGeDiao/shuorenhua
-/plugin install shuorenhua@shuorenhua
-```
+  ```text
+  /plugin marketplace add MrGeDiao/shuorenhua
+  /plugin install shuorenhua@shuorenhua
+  ```
 
-装好后直接说「把这段去 AI 味」。手动安装和跟随更新见 [install/claude-code.md](install/claude-code.md)。
+  装好后直接说「把这段去 AI 味」。手动安装和跟随更新见 [install/claude-code.md](install/claude-code.md)。
 
-**Codex** — clone 后单次使用：
+- **Codex**：clone 后单次使用：
 
-```bash
-git clone https://github.com/MrGeDiao/shuorenhua.git && cd shuorenhua
-codex exec -C . "读取 ./SKILL.md，按其中规则改写以下文本：……"
-```
+  ```bash
+  git clone https://github.com/MrGeDiao/shuorenhua.git && cd shuorenhua
+  codex exec -C . "读取 ./SKILL.md，按其中规则改写以下文本：……"
+  ```
 
-**其他支持 `skills` 命令的 agent**：
+- **其他支持 `skills` 命令的 agent**：
 
-```bash
-npx skills add MrGeDiao/shuorenhua
-```
+  ```bash
+  npx skills add MrGeDiao/shuorenhua
+  ```
 
-只想看问题、不想直接改稿，加一句「按 annotation mode 只标注不改写」。Cursor、OpenClaw、自建 agent 和更多安装方式见[安装](#安装)。
+- **只看问题**：加一句「按 annotation mode 只标注不改写」。Cursor、OpenClaw、自建 agent 和更多安装方式见[安装](#安装)。
 
-## 先看一眼效果
+## 效果和保真
 
 **改写前**
 
@@ -79,7 +78,7 @@ npx skills add MrGeDiao/shuorenhua
 
 该删的是渲染词，不是证据。这条对应评测集里的硬约束用例 [SF-46](evals/benchmark.md)。更多对照见 [references/examples.md](references/examples.md) 和 [evals/real-samples.md](evals/real-samples.md)。
 
-## 保真：哪些不能改
+### 哪些不能改
 
 去 AI 味最常翻车的地方：句子顺了，事实变了。下面把不能动的部分列成可检查的规则：
 
@@ -136,28 +135,6 @@ README、release note、论坛帖、issue 回复、API reference 和 FAQ 各有�
 
 三个值的取舍过程见 [issue #4](https://github.com/MrGeDiao/shuorenhua/issues/4)，实跑记录见 [evals/results-v1.8.6.md](evals/results-v1.8.6.md) 和 [evals/run-manifest.md](evals/run-manifest.md)。
 
-## v2.4 状态
-
-v2.4.0 是收缩版。原本的候选把七类改动打包在一起，跑了 13 轮 remediation、54 次外部调用，没有通过任何一轮完整验收，2026-08-29 决定只保留直接回应 [#5](https://github.com/MrGeDiao/shuorenhua/issues/5) 的两条规则改动，其余移出留给 v2.5。留下的两条是：技术报告术语改为按词在句子里的具体含义放行，不再因为文本是 README 或发布说明就把周围的包装表达一起放行；FAQ 的「尽早给结论」不得把原有执行前条件和警告挪到操作之后。配套改了 `SKILL.md` 的 No-touch 一节、`phrases-zh.md` 的 `闭环` 词条和 `protected-spans.md` 的两类保护划分，规则改动一共 20 行左右。
-
-验收范围是受影响面 34 条，不是全量 120 条——本版新增 9 条，加上收紧后误杀风险最高的 12 条、FAQ 既有题 4 条、`闭环`/`收口` 波及的 7 条和数值保护题 2 条。Claude Opus 5 与 Grok 4.6 两个席位各自改写，判分用的是逐条静态复核，不是模型交叉判分。
-
-两个席位的硬约束失败都是 0。不该改的 23 条里，Claude 一条没误伤，Grok 误伤 1 条（SNF-28，v2.3.1 就有，不是这版引入）；本版新增的 7 条 SNF 两边都是零误杀。三处失败点完全互补，没有一条是两个模型同时栽的。SF-62 是 #5 的原始素材，Claude 跑了两次：第一次漏清了「判分仅闭环」，第二次同一份输入下两处包装都清掉了，属执行波动而不是稳定失败。
-
-门槛 1（硬约束失败为 0）和门槛 2（误杀率）都达成。门槛 3 要求新增用例双模型达标，Grok 通过，Claude 一次通过一次漏清，最终判定留给维护者。SF-07、SF-39、SF-16、SF-37 这四条已知问题本版没有碰，不在修复范围内。完整证据和判定标准见 [evals/results-v2.4.0.md](evals/results-v2.4.0.md)。
-
-## v2.3.1 状态
-
-v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定的）：r4 全量里硬约束失败 0 次，不该改的 50 条一条没误改，该改的 61 条过了 57 条，达到发布线。原本要跑第二个模型做对照：DeepSeek V4 Pro 出了一次真实 L1（B-74），同条件复跑两次结果都不一样，单次全量结果不可复现，撤掉了；换 Grok 4.6 补跑，改写和硬判都干净，但判分只跑完 7 批里的 1 批，只能算参考。第二个模型的对照留到后面的版本补。另外人类长文样本还差 `docs` 和 `status` 两类，`check_repo` 把这一项报为已知缺口，不卡 CI，凑够 12 篇再关掉。完整证据和判定标准见 [evals/results-v2.3.1.md](evals/results-v2.3.1.md)。
-
-本版改动：
-
-- 新增 [`dist/shuorenhua-mini.md`](dist/shuorenhua-mini.md)（1,500 字符以内、自包含），安装方式统一成 mini / lite / full 三种
-- Scene Packs 增加 API reference 和 FAQ；benchmark 从 103 条扩到 111 条（61 SF + 50 SNF）
-- 保真回读改为按子句与事实要素建账，输出前做双向核对
-- 新增 8 篇 HUMAN 长文 residual 对照，含固定 revision、归属、许可证据和 manifest 校验
-- 修复 `references/structures.md` §20 破折号密度判据的计数单位矛盾，统一按插入处计数
-
 ## 评测
 
 规则层覆盖 210+ 条中文短语、96 条英文短语和 25 类结构反模式。
@@ -173,6 +150,21 @@ v2.3.1 只用 Opus 一个模型跑完了发布评测（维护者 2026-08-21 定�
 120 条是主 benchmark，20 条场景样本是单独的整段评测，两者不相加。主 benchmark 含 21 条 Scene Pack 正反用例、4 条 Long-form In-place 和 3 条 Bounded 用例。
 
 另有 8 篇 HUMAN 长文 residual 对照，用于观察假阳性：3 篇历史文本、5 篇现代公开文本，6 篇中文原作、2 篇英译中，共 7 个作者组。不进入 benchmark、rewrite 或 judge 分母，不据此设「人味」阈值。语料正文及改编沿用各自许可，不适用仓库根目录的 MIT。
+
+### 当前版本
+
+当前发布版是 `v2.4.0`。这一版只改了两个边界：
+
+- 技术报告里的术语按它在句子中的实际含义判断，不再因为文本属于 README 或发布说明就连周围的包装表达一起放过。
+- FAQ 可以提前给出结论，但原有的执行前条件和警告不能被挪到操作之后。
+
+原定的七类改动没有一起发布。它们跑了 13 轮 remediation、54 次外部调用，没有一轮通过完整验收。2026-08-29 决定只留下直接回应 [#5](https://github.com/MrGeDiao/shuorenhua/issues/5) 的上面两条，其余留给 `v2.5`。完整过程、失败项和判定标准见 [v2.4.0 评测记录](evals/results-v2.4.0.md)。
+
+`v2.4.0` 检查了受影响的 34 条用例，不是全量 120 条。Claude Opus 5 和 Grok 4.6 的硬约束失败都是 0；新增的 7 条 SNF 没有误杀。已知问题照常列出：Grok 误改了 `SNF-28`（`v2.3.1` 已存在），Claude 对 `SF-62` 的两次结果不一致；`SF-07`、`SF-39`、`SF-16`、`SF-37` 不在这版的修复范围内。硬约束和误杀率达到门槛，新增用例的双模型结果仍留给维护者判定。
+
+最新的全量基线是 [`v2.3.1`](evals/results-v2.3.1.md)：Claude Opus 完成了发布评测，硬约束失败 0 次，50 条 SNF 零误改，61 条 SF 通过 57 条。第二个模型没有跑出可用的全量对照，所以这份基线仍然只代表 Opus。HUMAN 长文样本还缺 `docs` 和 `status` 两类，`check_repo` 仍把它报为已知缺口。
+
+### 发布门槛
 
 发布门槛从 v2.1.0 起分四层：
 
@@ -263,4 +255,3 @@ Claude Code: `/plugin marketplace add MrGeDiao/shuorenhua`, then `/plugin instal
 ## 许可
 
 [MIT](LICENSE)
-)
