@@ -10,6 +10,7 @@
 ### Changed
 
 - HUMAN 代表性门禁恢复为普通阻塞检查，移除 v2.4.0 为收集期临时保留的 `known-gap` 放行通道。
+- README 恢复为面向新读者的短结构，只保留项目用途、使用方式、规则边界和评测结论；版本实验过程继续放在评测记录和 changelog，不再占用 README 主流程。
 
 ### Verification status
 
